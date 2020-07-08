@@ -39,6 +39,8 @@ export default {
         height: .4rem;
         line-height: .4rem;
         box-sizing: border-box;
+        letter-spacing: 3px;
+
       }
       &.router-link-active{
         .tab-link{

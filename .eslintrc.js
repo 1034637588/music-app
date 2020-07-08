@@ -33,6 +33,7 @@ module.exports = {
 // "no-duplicate-case": 2,//switch中的case标签不能重复
 // "no-else-return": 2,//如果if语句里面有return,后面不能跟else语句
 // "no-empty": 2,//块语句中的内容不能为空
+ "no-useless-return":0,
 // "no-empty-character-class": 2,//正则表达式中的[]内容不能为空
 "no-empty-label": 0,//禁止使用空label
 // "no-eq-null": 2,//禁止对null使用==或!=运算符
