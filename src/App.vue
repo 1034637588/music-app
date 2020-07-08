@@ -1,32 +1,29 @@
 <template>
   <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
+    <m-header/>
+    <m-tab/>
     <router-view/>
   </div>
 </template>
-
-<style lang="less">
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
+<script>
+import mHeader from './components/m-header/mHeader.vue';
+import mTab from './components/tab/tab.vue';
+export default {
+  components: {
+    mHeader,
+    mTab
+  },
+ methods:{
+ }
 }
-
-#nav {
-  padding: 30px;
-
-  a {
-    font-weight: bold;
-    color: #2c3e50;
-
-    &.router-link-exact-active {
-      color: #42b983;
+</script>
+<style lang="less" scoped>
+@import './assets/styles/css/varibal.less';
+    #app{
+      height: 100%;
+      width: 100%;
+      p{
+        color: @color-theme;
+      }
     }
-  }
-}
 </style>
