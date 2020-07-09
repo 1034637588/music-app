@@ -117,6 +117,7 @@ module.exports = {
 // "array-bracket-spacing": [2, "never"],//是否允许非空数组里面有多余的空格
 "arrow-parens": 0,//箭头函数用小括号括起来
 "arrow-spacing": 0,//=>的前/后括号
+"keyword-spacing":0,
 "accessor-pairs": 0,//在对象中使用getter/setter
 "block-scoped-var": 0,//块语句中使用var
 // "brace-style": [1, "1tbs"],//大括号风格

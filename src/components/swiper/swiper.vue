@@ -25,7 +25,7 @@ export default {
       },
       interval: {
         type: Number,
-        default: 4000
+        default: 3000
       },
       data:{
         type: Array
@@ -65,9 +65,17 @@ export default {
           loop: true
           }
       });
+      if(this.autoPlay){
+        this._play(400);
+      }
       this.swiper.on('scrollEnd',(obj)=>{
         this.currentIndex = this.swiper.getCurrentPage().pageX;
       })
+    },
+    _play(time){ //自动轮播
+      this.time = setInterval(() => {
+        this.swiper.next(time);
+      }, this.interval);
     }
 
   },
@@ -75,7 +83,18 @@ export default {
     setTimeout(() => {
       this._setSwiperWidth();
       this._initSwiper();
+      this.swiper.next(400);
     }, 20);
+    window.addEventListener('resize',()=>{ //窗口改变重新计算
+      if(!this.swiper){
+        return;
+      }
+      this._setSwiperWidth();
+      this.swiper.refresh();
+    })
+  },
+  destroyed(){
+    clearInterval(this.timer);
   }
 }
 </script>
@@ -85,7 +104,6 @@ export default {
     height: 2.5rem;
     width: 100vw;
     position: relative;
-    background: chartreuse;
     .scroll-box{
       width: 100%;
       height: 100%;
