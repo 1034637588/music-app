@@ -6,7 +6,7 @@
       <div class="recommendList">
         <div class="recommendItem" v-for="item in reList" :key="item.id">
             <div class="left">
-              <img @load.once="onloadImg" :src="item.img"/>
+              <img @load.once="onloadImg" v-lazy="item.img"/>
             </div>
             <div class="right">
               <h1 class="r-title">{{item.uname}}</h1>
@@ -15,16 +15,21 @@
         </div>
       </div>
   </div>
+  <div class="loadingbox" v-show="!reList.length">
+    <loading/>
+  </div>
 </scroll-view>
 </template>
 <script>
-import Swiper from '../swiper/swiper.vue';
+import Swiper from '../../components/swiper/swiper.vue';
 import RecommentApi from '../../api/recommendApi.js';
-import ScrollView from '../scroll/ScrollView.vue';
+import ScrollView from '../../components/scroll/ScrollView.vue';
+import Loading from '../../components/loading/loading.vue';
 export default {
   components:{
     Swiper,
-    ScrollView
+    ScrollView,
+    Loading
   },
   data(){
     return {
@@ -42,9 +47,12 @@ export default {
     }
   },
   created(){
-    RecommentApi.TopRecommend().then((res)=>{
+    setTimeout(() => {
+      RecommentApi.TopRecommend().then((res)=>{
       this.reList = res.data.data;
-    })
+    });
+    }, 1000);
+    
   },
   mounted(){
     setTimeout(() => {
@@ -103,6 +111,13 @@ export default {
         }
 
       }
+    }
+    .loadingbox{
+      width: 100%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%);
     }
   }
 </style>

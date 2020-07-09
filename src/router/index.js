@@ -9,16 +9,16 @@ const routes = [
   },
   {
     path:'/recommend',
-    component:()=>import('../components/recommend/recommend')
+    component:()=>import('../views/recommend/recommend')
   },{
     path:'/singer',
-    component:()=>import('../components/singer/singer')
+    component:()=>import('../views/singer/singer')
   },{
     path:'/rank',
-    component:()=>import('../components/rank/rank')
+    component:()=>import('../views/rank/rank')
   },{
     path:'/search',
-    component:()=>import('../components/search/search')
+    component:()=>import('../views/search/search')
   }
 ];
 

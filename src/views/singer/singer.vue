@@ -7,7 +7,7 @@
 
 </template>
 <script>
-import ScorllView from '../scroll/ScrollView.vue';
+import ScorllView from '../../components/scroll/ScrollView.vue';
 import BScroll from 'better-scroll';
 export default {
   components:{
