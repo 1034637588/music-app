@@ -22,9 +22,10 @@
 </template>
 <script>
 import Swiper from '../../components/swiper/swiper.vue';
-import RecommentApi from '../../api/recommendApi.js';
 import ScrollView from '../../components/scroll/ScrollView.vue';
 import Loading from '../../components/loading/loading.vue';
+import RecommentApi from '../../api/recommendApi.js';
+import Api from '../../api/singerApi.js';
 export default {
   components:{
     Swiper,
@@ -52,7 +53,6 @@ export default {
       this.reList = res.data.data;
     });
     }, 1000);
-    
   },
   mounted(){
     setTimeout(() => {
@@ -66,7 +66,7 @@ export default {
   .recommend{
     display: flex;
     flex-flow: column nowrap;
-    height: 9.7rem;
+    height: 9.8rem;
     overflow: hidden;
     .title{
       height: .6rem;

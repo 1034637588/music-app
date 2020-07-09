@@ -1,26 +1,30 @@
 <template>
-<scorll-view ref="box" class="box">
-    <ul>
-      <li v-for="item in 60" :key="item">{{item}}</li>
-    </ul>
-</scorll-view>
-
+  <div class="singerbox">
+    <list-view :data="singerData"/>
+  </div>
 </template>
 <script>
-import ScorllView from '../../components/scroll/ScrollView.vue';
-import BScroll from 'better-scroll';
+import ListView from '../../components/listView/listView';
+import SingerApi from '../../api/singerApi.js';
 export default {
   components:{
-    ScorllView
+    ListView
+  },
+  data(){
+    return{
+      singerData:[]
+    }
   },
   mounted(){
+    SingerApi.getSingers().then((res)=>{
+      this.singerData=res.data.artistList;
+      console.log(this.singerData)
+    })
   }
 }
 </script>
 <style lang="less" scoped>
-  .box{
-    height: 80vh;
-    background: burlywood;
-    overflow: hidden;
+  .singerbox{
+    height: 9.8rem;
   }
 </style>

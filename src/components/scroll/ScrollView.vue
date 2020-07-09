@@ -18,7 +18,12 @@ export default {
         data:{
             type:Array,
             default:null
+        },
+        listenScroll:{
+            type:Boolean,
+            default:false
         }
+
     },
     mounted(){
         setTimeout(() => {
@@ -36,7 +41,12 @@ export default {
                 probeType:this.probeType,
                 click:this.click
             });
-            console.log(this.$refs.wrapper)
+            if(this.listenScroll){
+                let _this = this; //因为这个on默认会把this改成scroll本身
+                this.scroll.on('scroll',(pos)=>{
+                    _this.$emit("scroll",pos);
+                })
+            }
         },
         enable(){
             this.scroll && this.scroll.enable();
@@ -47,6 +57,12 @@ export default {
         refresh(){
             this.scroll && this.scroll.refresh();
             console.log("重新加载scroll")
+        },
+        scrollTo(){
+            this.scroll && this.scroll.scrollTo.apply(this.scroll,arguments);
+        },
+        scrollToElement(){
+            this.scroll && this.scroll.scrollToElement.apply(this.scroll,arguments);
         }
 
     },
