@@ -12,7 +12,13 @@ const routes = [
     component:()=>import('../views/recommend/recommend')
   },{
     path:'/singer',
-    component:()=>import('../views/singer/singer')
+    component:()=>import('../views/singer/singer'),
+    children:[
+      {
+        path:':id',
+        component:()=>import('../views/singer-detail/singerDetail')
+      }
+    ]
   },{
     path:'/rank',
     component:()=>import('../views/rank/rank')

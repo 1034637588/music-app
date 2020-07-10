@@ -8,7 +8,7 @@
         <ul class="list-group" v-for="group in data" :key="group.title" ref="listGroup">
             <h1 class="title">{{group.title}}</h1>
             <ul class="item-box">
-                <li class="item" v-for="item in group.list" :key="item.id"> 
+                <li @click="cliceItem(item)" class="item" v-for="item in group.list" :key="item.id"> 
                     <div class="imgbox">
                         <img v-lazy="item.pic120"/>
                     </div>
@@ -130,6 +130,9 @@ export default {
                 height +=Number(item.clientHeight);
                 this.heightList.push(height)
             });
+        },
+        cliceItem(item){ //触发点击事件
+            this.$emit("clickItem",item);
         }
     }
 }
