@@ -66,7 +66,8 @@ export default {
   .recommend{
     display: flex;
     flex-flow: column nowrap;
-    height: 9.8rem;
+    // height: 9.8rem;
+    height: 86.6vh;
     overflow: hidden;
     .title{
       height: .6rem;

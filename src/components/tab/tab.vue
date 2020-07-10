@@ -24,7 +24,8 @@ export default {
   .tab-box{
     color: @color-text-l;
     font-size: @font-size-medium;
-    height: .8rem;
+    // height: .8rem;
+    height: 6.7vh;
     display: flex;
     justify-content: space-around;
     align-items: center;

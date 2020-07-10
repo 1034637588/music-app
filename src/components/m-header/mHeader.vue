@@ -13,7 +13,8 @@ export default {
 @import '../../assets/styles/css/mixin.less';
 @import '../../assets/styles/css/varibal.less';
     .h-box{
-        height: .80rem;
+        // height: .80rem;
+        height: 6.7vh;
         display: flex;
         align-items: center;
         position: relative;

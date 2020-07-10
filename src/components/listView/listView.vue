@@ -31,6 +31,9 @@
                 </li>
             </ul>
         </div>
+        <div class="list-fixed" ref="fixed" v-show="fixedTitle"> 
+            <div class="fixed-title">{{fixedTitle}} </div>
+        </div>
     </scorll>
 </template>
 <script>
@@ -45,11 +48,19 @@ export default {
             heightList:[],
             scrollY:0,//监听页面滚动 实现联动做准备
             currentIndex:0,//当前显示的小导航的索引
-            shortcutList:['热',"A","B","C","D","E","F","G","H","J","K","L","M","N","P","Q","R","S","T","W","X","Y","Z"]
+            shortcutList:['热',"A","B","C","D","E","F","G","H","J","K","L","M","N","O","P","Q","R","S","T","W","X","Y","Z"]
         }
     },
     components:{
         Scorll
+    },
+    computed:{
+        fixedTitle(){
+            if(this.scrollY > 0){
+                return "";
+            }
+            return this.data[this.currentIndex] ? this.data[this.currentIndex].title : '';
+        }
     },
     created(){
         this.touch = {};
@@ -65,7 +76,6 @@ export default {
             }, 20);
         },
         scrollY(newY){
-            console.log(newY);
             const listHeight = this.heightList;
             // 当滚动到顶部，newY>0
             if (newY > 0) {
@@ -83,7 +93,6 @@ export default {
             }
             // 当滚动到底部，且-newY大于最后一个元素的上限
             this.currentIndex = listHeight.length - 2;
-            console.log(this.currentIndex);
         }
     },
     methods:{
@@ -100,24 +109,27 @@ export default {
             let darta = (this.touch.y2 - this.touch.y1)/this.touch.shortCutHeight ; 
                 darta = Math.floor(darta);//计算滑动的偏移 滑动了几个小导航
             let index2 = this.touch.index + darta;//就是要滑动到的位置
+            if(index2<0){ //判断边界
+                index2 = 0;
+            }
+            if(index2 > this.listHeight - 2 ){
+                index2 = this.listHeight - 2;
+            }
             this.$refs.listview.scroll.scrollToElement(this.$refs.listGroup[index2],0);
             //在小导航处滑动 后 滚动到的哪个位置
         },
         onscroll(pos){
             this.scrollY = pos.y;
-            console.log(pos.y)
         },
         calculateHeight(){ //计算出每个group高度对应的位置
             this.heightList = [];//记录个group的顶部高度 来判断在哪个区间 属于哪个索引 实现联动
             let list = this.$refs.listGroup;
             let height = 0;
-            console.log(list)
             this.heightList.push(height);//第一个的高度是0开始的
             list.forEach(item => {
                 height +=Number(item.clientHeight);
                 this.heightList.push(height)
             });
-            console.log(this.heightList);
         }
     }
 }
@@ -125,13 +137,12 @@ export default {
 <style lang="less" scoped>
 @import '../../assets/styles/css/varibal.less';
     .scroll{
-        height: 9.8rem;
+        // height: 9.8rem;
+        height: 86.6vh;
         overflow: hidden;
         position: relative;
         .list-group{
             .title{
-                position: sticky;
-                top: 0;
                 height: .6rem;
                 line-height: .6rem;;
                 font-size: @font-size-small;
@@ -190,6 +201,19 @@ export default {
                 }
             }
         }
-            
+        .list-fixed{
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            .fixed-title{
+                height: .6rem;
+                line-height: .6rem;;
+                font-size: @font-size-small;
+                color: @color-text-l;
+                background: @color-highlight-background;
+                padding-left: .3rem;
+            }
+       }
     }
 </style>
