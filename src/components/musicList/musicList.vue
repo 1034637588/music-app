@@ -1,17 +1,23 @@
 <template>
   <div class="music-list">
-    <div class="head" :style="{backgroundImage:bgStyle,height:headHeight,zIndex:headIndex}" ref="head">
-        <div class="back" ref="back" @click="back">
-            <i class="iconfont icon-fanhui"></i>
-            <h1 class="title">{{title}}</h1>
-        </div>
-        <div class="play" :style="{zIndex:palyIndex}">
+    <div class="head" 
+        :style="{
+            backgroundImage:bgStyle,
+            height:headHeight,
+            zIndex:headIndex,
+            transform:scale}"
+        ref="head">
+        <div class="play" v-show="palyIndex==20" :style="{zIndex:palyIndex}">
           <i class="iconfont icon-ziyuan"></i>
           <span class="text">随机播放全部</span>
         </div>
         <div class="filter"></div>
         <!-- 背景图片的蒙层 -->
     </div>
+        <div class="back" ref="back" @click="back">
+        <i class="iconfont icon-fanhui"></i>
+        <h1 class="title">{{title}}</h1>
+        </div>
     <div class="bg-layer" ref="layer"></div>
     <scroll-view 
         :data="songs" 
@@ -52,7 +58,8 @@ export default {
             scrollY:0,
             palyIndex:20,
             headHeight:"40vh",
-            headIndex:-1
+            headIndex:-1,
+            scale:""
         }
     },
     computed: {
@@ -65,18 +72,24 @@ export default {
     },
     watch:{
         scrollY(newY){ //监听滚动的距离
-        console.log(newY)
-        if(-newY > this.imgHeight - this.backHeight){
-            // this.headIndex = 10;
+        if(-newY > this.imgHeight - this.backHeight){ //当滑动到back的部分的时候 让head的高度变成back的高度 并且层级变高 这样歌词就不会超出了
+            this.headHeight = "6.7vh";
+            this.headIndex= 10;
             return;
         }else{
-            // this.headIndex = -1;
+            this.headIndex = -1;
+            this.headHeight = "40vh"; //在滚动小于head高度减去back的高度时 让蒙层向上跟随平移(蒙层的层级高于head的层级) 蒙层的背景和歌曲list的背景一致 这样就可以有 列表伴随滚动的效果 并且在back处停止
             this.$refs.layer.style.transform = `translate3d(0,${newY}px,0)`;
-        }
-        if(-newY > 20){
+       }
+        if(-newY > 20){ //控制paly区域层级的 在向上滑动时隐藏
             this.palyIndex = -1;
         }else{
             this.palyIndex = 20;
+        }
+        if(newY > 0){ //实现向下拉的时候 让背景跟随变大 并且高斯模糊
+            let percent = Math.abs(newY / this.imgHeight); //计算处要放大的倍数
+            let x = 1 + percent;
+            this.scale = `scale(${x})`;
         }
         }
     },
@@ -100,17 +113,22 @@ export default {
 @import '../../assets/styles/css/varibal.less';
 .music-list{
     height: 100%;
+    overflow: hidden;
     .head{
         height: 40vh;
         position: relative;
         background-repeat: no-repeat;
-        background-position: center;
+        background-position: top;
         background-size: cover;
+        transform-origin: top;
+        z-index: 10;
     }
     .back{
         height: 6.7vh;
+        width: 100%;
         line-height: 6.7vh;
-        position: relative;
+        position: absolute;
+        top: 0;
         .icon-fanhui{
         position: absolute;
         top:0;

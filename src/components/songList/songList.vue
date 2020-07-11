@@ -6,8 +6,8 @@
           <span></span>
         </div>
         <div class="content">
-          <h2 class="name" v-html="item.ARTIST"></h2>
-          <p class="desc" v-html="item.SONGNAME"></p>
+          <h2 class="name" v-html="item.SONGNAME"></h2>
+          <p class="desc" v-html="item.ARTIST"></p>
         </div>
       </li>
     </ul>
