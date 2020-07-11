@@ -2,20 +2,21 @@
   <div id="app">
     <m-header/>
     <m-tab/>
-    <!-- <div class="routerview"> -->
     <keep-alive>
-    <router-view/>
+      <router-view/>
     </keep-alive>
+    <player/>
   </div>
-  <!-- </div> -->
 </template>
 <script>
 import mHeader from './components/m-header/mHeader.vue';
 import mTab from './components/tab/tab.vue';
+import Player from './views/player/player'
 export default {
   components: {
     mHeader,
-    mTab
+    mTab,
+    Player
   },
  methods:{
  }

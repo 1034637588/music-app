@@ -1,13 +1,13 @@
 <template>
   <div class="song-list">
-    <ul>
-      <li class="item" v-for="item in songs" :key="item.MUSICRID">
+    <ul ref="songul">
+      <li @click="selectItem(item,index)" class="item" v-for="(item,index) in songs" :key="item.MUSICRID">
         <div class="rank" v-show="rank">
           <span></span>
         </div>
         <div class="content">
           <h2 class="name" v-html="item.SONGNAME"></h2>
-          <p class="desc" v-html="item.ARTIST"></p>
+          <p class="desc" v-html="getDesc(item)"></p>
         </div>
       </li>
     </ul>
@@ -26,7 +26,19 @@
         default: false
       }
     },
+    computed(){
+    },
     methods: {
+      selectItem(item,index){ //派发点击事件
+        this.$emit("select",item,index);
+      },
+       getDesc(song){
+         if(song.ALBUM!=''){
+          return `${song.ARTIST}·${song.ALBUM}`;
+         }else{
+           return `${song.ARTIST}`
+         }
+      }
     }
   }
 </script>
@@ -56,10 +68,15 @@
         overflow: hidden;
         padding:0 8%;
         .name{
+          width: 100%;
           color: @color-text;
           margin-bottom: .1rem;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
         .desc{
+          width: 100%;
           margin-top: 4px;
           color: @color-text-d;
           white-space: nowrap;

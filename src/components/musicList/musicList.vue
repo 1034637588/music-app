@@ -14,7 +14,7 @@
         <div class="filter"></div>
         <!-- 背景图片的蒙层 -->
     </div>
-        <div class="back" ref="back" @click="back">
+        <div class="back" :style="{background:backBg}" ref="back" @click="back">
         <i class="iconfont icon-fanhui"></i>
         <h1 class="title">{{title}}</h1>
         </div>
@@ -26,18 +26,23 @@
         :listenScroll=true
         @scroll="scroll"
         >
-        <song-list :songs="songs"/>
+        <song-list @select="selectSong" :songs="songs"/>
+        <div class="loadingbox" v-show="isLoad">
+          <loading/>
+        </div>
     </scroll-view>
   </div>
 </template>
 <script>
-import {mapGetters} from 'vuex';
+import {mapGetters,mapActions} from 'vuex';
 import songList from '../songList/songList';
 import scrollView from '../scroll/ScrollView';
+import Loading from '../../components/loading/loading'
 export default {
     components:{
         songList,
-        scrollView
+        scrollView,
+        Loading
     },
     props:{
         bgImage: {
@@ -46,11 +51,15 @@ export default {
       },
       songs: {
         type: Array,
-        default:[1]
+        default:[]
       },
       title: {
         type: String,
         default: ''
+      },
+      isLoad:{
+        type: Boolean,
+        default: false
       }
     },
     data(){
@@ -59,19 +68,20 @@ export default {
             palyIndex:20,
             headHeight:"40vh",
             headIndex:-1,
-            scale:""
+            scale:"",
+            backBg:"",
+            bgStyle:`url(${this.bgImage})`
         }
     },
     computed: {
-      bgStyle() {
-        return `url(${this.bgImage})`
-      },
       ...mapGetters([
             "singer"
         ])
     },
     watch:{
         scrollY(newY){ //监听滚动的距离
+        // console.log(newY);
+        this.$emit("loaderMore",newY); //触发滚动事件 留给详情页做上拉加载
         if(-newY > this.imgHeight - this.backHeight){ //当滑动到back的部分的时候 让head的高度变成back的高度 并且层级变高 这样歌词就不会超出了
             this.headHeight = "6.7vh";
             this.headIndex= 10;
@@ -79,7 +89,7 @@ export default {
         }else{
             this.headIndex = -1;
             this.headHeight = "40vh"; //在滚动小于head高度减去back的高度时 让蒙层向上跟随平移(蒙层的层级高于head的层级) 蒙层的背景和歌曲list的背景一致 这样就可以有 列表伴随滚动的效果 并且在back处停止
-            this.$refs.layer.style.transform = `translate3d(0,${newY}px,0)`;
+            this.$refs.layer.style.transform = `translate3d(0,${newY-5}px,0)`;
        }
         if(-newY > 20){ //控制paly区域层级的 在向上滑动时隐藏
             this.palyIndex = -1;
@@ -100,11 +110,20 @@ export default {
         }, 20);
     },
     methods:{
+        ...mapActions([
+            "selectPlay"
+        ]),
         back(){
             this.$router.go(-1);
         },
         scroll(pos){ //监听滚动事件 使得滚动时背景图片也网上走
             this.scrollY = pos.y;
+        },
+        selectSong(item,index){ //点击播放音乐 传入播放列表
+            this.selectPlay({
+               list:this.songs,
+               index
+            })
         }
     }
 }
@@ -128,6 +147,7 @@ export default {
         width: 100%;
         line-height: 6.7vh;
         position: absolute;
+        z-index: 200;
         top: 0;
         .icon-fanhui{
         position: absolute;
@@ -176,7 +196,6 @@ export default {
             font-size: @font-size-small;
             letter-spacing: 3px;
         }
-            
     }
     .filter{
         position: absolute;
@@ -195,9 +214,15 @@ export default {
     }
     .scroll{
         position: absolute;
+        top: 40vh;
+        left: 0;
         height: 60vh;
         width: 100%;
         // overflow: hidden;
+    }
+    .loadingbox{
+        width: 100%;
+        text-align: center;
     }
 }
 </style>
