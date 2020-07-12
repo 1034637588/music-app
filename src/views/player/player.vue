@@ -1,49 +1,60 @@
 <template>
 <!-- 当有播放列表时显示 -->
-    <div class="player-box" v-show="playList.length>0">  
-        <div class="nomal-player" v-show="fullScreen">
-            <div class="background">
-                <img height="100%" width="100%" :src="currentSong.hts_MVPIC || singer.pic300 " alt="歌手照片">
-            </div>
-            <div class="top">
-                <div @click="back" class="back">
-                    <i class="iconfont icon-wei-"></i>
+    <div class="player-box" v-show="playList.length>0">
+        <transition 
+                name="normal" 
+                @enter="enter"
+                @after-enter="afterEnter"
+                @leave="leave"
+                @after-leave="afterLeave">
+            <div class="nomal-player" v-show="fullScreen">
+                <div class="background">
+                    <img height="100%" width="100%" :src="currentSong.hts_MVPIC || singer.pic300 " alt="歌手照片">
                 </div>
-                <h1 class="title" v-html="currentSong.NAME">枫</h1>
-                <h2 class="subtitle" v-html="currentSong.ARTIST">周杰伦</h2>
-            </div>
-            <div class="middle">
-                <div class="middle-l">
-                    <div class="cd-wrapper">
-                        <div class="cd">
-                            <img :src="currentSong.hts_MVPIC || singer.pic300" alt="专辑照片" class="image">
+                <div class="top" ref="top">
+                    <div @click="back" class="back">
+                        <i class="iconfont icon-wei-"></i>
+                    </div>
+                    <h1 class="title" v-html="currentSong.NAME">枫</h1>
+                    <h2 class="subtitle" v-html="currentSong.ARTIST">周杰伦</h2>
+                </div>
+                <div class="middle" ref="middle">
+                    <div class="middle-l">
+                        <div class="cd-wrapper" ref = "wrapper">
+                            <div class="cd">
+                                <img :src="currentSong.hts_MVPIC || singer.pic300" alt="专辑照片" class="image">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="middle-r">
+
+                    </div>
+                </div>
+                <div class="bottom">
+                    <div class="progress-wrapper"></div>
+                    <div class="operators">
+                        <div class="icon i-left">
+                            <i class="iconfont icon-yinleliebiao"></i>
+                        </div>
+                        <div class="icon i-left" >
+                            <i class="iconfont icon-tubiaozhizuomoban1"></i>
+                        </div>
+                        <div class="icon i-center" >
+                            <i class="iconfont icon-ziyuan"></i>
+                        </div>
+                        <div class="icon i-right" >
+                            <i class="iconfont icon-tubiaozhizuomoban"></i>
+                        </div>
+                        <div class="icon i-right">
+                            <i class="iconfont icon-xin1"></i>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="bottom">
-                <div class="progress-wrapper"></div>
-                <div class="operators">
-                    <div class="icon i-left">
-                        <i class="iconfont icon-yinleliebiao"></i>
-                    </div>
-                    <div class="icon i-left" >
-                        <i class="iconfont icon-tubiaozhizuomoban1"></i>
-                    </div>
-                    <div class="icon i-center" >
-                        <i class="iconfont icon-ziyuan"></i>
-                    </div>
-                    <div class="icon i-right" >
-                        <i class="iconfont icon-tubiaozhizuomoban"></i>
-                    </div>
-                    <div class="icon i-right">
-                        <i class="iconfont icon-xin1"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
+        </transition>  
+        <transition name="mini">
         <div class="mini-player" @click="open" v-show="!fullScreen">
-            <div class="little-img">
+            <div class="little-img" ref="littleImg">
                 <img :src="currentSong.hts_MVPIC || singer.pic300">
             </div>
             <div class="text">
@@ -57,10 +68,12 @@
                 <i class="iconfont icon-yinleliebiao"></i>
             </div>
         </div>
+        </transition>
     </div>
 </template>
 <script>
 import {mapGetters,mapMutations} from 'vuex';
+import animations from 'create-keyframe-animation';
 export default {
     computed:{
         ...mapGetters([
@@ -69,6 +82,8 @@ export default {
             'currentSong',
             'singer'
         ])
+    },
+    mounted(){
     },
     methods:{
         ...mapMutations({
@@ -79,7 +94,73 @@ export default {
         },
         open(){
             this.setFullScreen(true);
+        },
+        _getPosAndScale(){
+            let littleImgX = this.$refs.littleImg.clientWidth;
+            let littleImgOffsetLeft = this.$refs.littleImg.offsetLeft;
+            let littleImgOffsetTop = this.$refs.littleImg.offsetTop;
+            let X1 =littleImgOffsetLeft + littleImgX/2; //小图片中心到left的距离
+            let X2 = document.documentElement.clientWidth / 2;
+            let offsetX = X2-X1; //cd 的X位置的偏移
+            let Y1 = littleImgOffsetTop + littleImgX/2;//小图片中心到bottom的距离
+            let CdToBottom = document.documentElement.clientHeight - this.$refs.top.clientHeight;//cd顶部到body底部的距离
+            let Y2 =  CdToBottom - this.$refs.wrapper.clientHeight / 2;//cd 中心到body底部的距离
+            let offsetY = Y2-Y1; //y轴 的偏移
+            let scale = littleImgX / this.$refs.wrapper.clientHeight; //缩小倍数
+            return{
+                offsetX,
+                offsetY,
+                scale
+            }
+        },
+        enter(el, done){ //过度动画化钩子
+            let {offsetX,offsetY,scale} = this._getPosAndScale();
+            let animation = {
+                0: {
+                    transform: `translate3d(-${offsetX}px,${offsetY}px,0) scale(${scale})`
+                },
+                60: {
+                    transform: `translate3d(0,0,0) scale(1.1)`
+                },
+                100: {
+                    transform: `translate3d(0,0,0) scale(1)`
+                }
+                }
+            animations.registerAnimation({
+                name: 'move',
+                animation,
+                presets: {
+                    duration: 400,
+                    easing: 'linear'
+                }
+            });
+            animations.runAnimation(this.$refs.wrapper, 'move', done);
+        }, //控制进入nomal播放器时的动画
+        afterEnter(){ //进入以后 移除动画
+            animations.unregisterAnimation('move');
+            this.$refs.wrapper.style.animation = '';
+        },
+        leave(el,done){
+            let {offsetX,offsetY,scale} = this._getPosAndScale();
+            let animation = {
+                0: { transform: `translate3d(0,0,0) scale(1)` },
+                100: {  transform: `translate3d(-${offsetX}px,${offsetY}px,0) scale(${scale})`}
+                }
+            animations.registerAnimation({
+                name: 'leave',
+                animation,
+                presets: {
+                    duration: 400,
+                    easing: 'linear'
+                }
+            });
+            animations.runAnimation(this.$refs.wrapper, 'leave', done);
+        },
+        afterLeave(){
+            animations.unregisterAnimation('leave');
+            this.$refs.wrapper.style.animation = '';
         }
+
     }
 }
 </script>
@@ -146,7 +227,13 @@ export default {
             display: flex;
             margin-top: .2rem;
             justify-content: center;
+            overflow: hidden;
+            .middle-l{
+                height: 100%;
+                width: 100%;
+            }
             .cd{
+                margin: 0 auto;
                 height: 75vw;
                 width: 75vw;
                 border-radius: 50%;
@@ -261,6 +348,27 @@ export default {
                  position: absolute;
                  right: 0.05rem;
             }
+    }
+    .normal-enter-active, .normal-leave-active{
+        transition: all 0.4s;
+        .top, .bottom{
+          transition: all 0.4s cubic-bezier(0.86, 0.18, 0.82, 1.32)
+        }
+    }
+    .normal-enter, .normal-leave-to{
+        opacity: 0;
+        .top{
+          transform: translate3d(0, -100px, 0)
+        }
+        .bottom{
+          transform: translate3d(0, 100px, 0)
+        }
+    }
+    .mini-enter-active, .mini-leave-active{
+        transition: all 0.4s
+    }
+    .mini-enter, .mini-leave-to{
+        opacity: 0
     }
 }
 </style>
