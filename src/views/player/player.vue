@@ -9,7 +9,7 @@
                 @after-leave="afterLeave">
             <div class="nomal-player" v-show="fullScreen">
                 <div class="background">
-                    <img height="100%" width="100%" :src="currentSong.hts_MVPIC || singer.pic300 " alt="歌手照片">
+                    <img height="100%" width="100%" :src="currentSong.hts_MVPIC || songImg " alt="歌手照片">
                 </div>
                 <div class="top" ref="top">
                     <div @click="back" class="back">
@@ -21,8 +21,8 @@
                 <div class="middle" ref="middle">
                     <div class="middle-l">
                         <div class="cd-wrapper" ref = "wrapper">
-                            <div class="cd">
-                                <img :src="currentSong.hts_MVPIC || singer.pic300" alt="专辑照片" class="image">
+                            <div :class="cdRotate" class="cd">
+                                <img :src="currentSong.hts_MVPIC || songImg" alt="专辑照片" class="image">
                             </div>
                         </div>
                     </div>
@@ -31,18 +31,24 @@
                     </div>
                 </div>
                 <div class="bottom">
-                    <div class="progress-wrapper"></div>
+                    <div class="progress-wrapper">
+                        <span class="time time-l">{{format(currentTime)}}</span>
+                        <div class="progress-bar-wrapper">
+                            <progress-bar :percent="percent"></progress-bar>
+                        </div>
+                        <span class="time time-r">{{songTime}}</span>
+                    </div>
                     <div class="operators">
                         <div class="icon i-left">
                             <i class="iconfont icon-yinleliebiao"></i>
                         </div>
-                        <div class="icon i-left" >
+                        <div @click.stop="pre" class="icon i-left" >
                             <i class="iconfont icon-tubiaozhizuomoban1"></i>
                         </div>
-                        <div class="icon i-center" >
-                            <i class="iconfont icon-ziyuan"></i>
+                        <div @click="togglePlaying" class="icon i-center" >
+                            <i :class="playIcon" class="iconfont"></i>
                         </div>
-                        <div class="icon i-right" >
+                        <div @click.stop="next" class="icon i-right" >
                             <i class="iconfont icon-tubiaozhizuomoban"></i>
                         </div>
                         <div class="icon i-right">
@@ -54,46 +60,160 @@
         </transition>  
         <transition name="mini">
         <div class="mini-player" @click="open" v-show="!fullScreen">
-            <div class="little-img" ref="littleImg">
-                <img :src="currentSong.hts_MVPIC || singer.pic300">
+            <div :class="cdRotate" class="little-img" ref="littleImg">
+                <img :src="currentSong.hts_MVPIC || (songImg || '../../assets/image/default.png')">
             </div>
             <div class="text">
                 <h2 class="name" v-html="currentSong.NAME"></h2>
                 <p class="desc" v-html="currentSong.ARTIST"></p>
             </div>
-            <div class="control">
-                <i class="iconfont icon-ziyuan1"></i>
+            <div @click.stop="togglePlaying" class="control">
+                <i :class="miniIcon" class="iconfont"></i>
             </div>
-            <div class="control" @click.stop="showPlaylist">
+            <div class="control">
                 <i class="iconfont icon-yinleliebiao"></i>
             </div>
         </div>
         </transition>
+        <audio 
+        ref="audio"
+        @timeupdate="updataTime"
+        @error="error" 
+        @canplay="ready" 
+        autoplay 
+        preload:auto 
+        :src="songUrl">
+        </audio>
     </div>
 </template>
 <script>
+import songApi from '../../api/songsApi';
+import axios from 'axios';
 import {mapGetters,mapMutations} from 'vuex';
 import animations from 'create-keyframe-animation';
+import progressBar from '../../components/progressBar/progressBar';
 export default {
+    components:{
+        progressBar
+    },
+    data(){
+        return{
+            songUrl:"",
+            lrclist:null,
+            songReady:false,
+            songTime:"",
+            currentTime:"",
+            songImg:""
+        }
+    },
     computed:{
+        playIcon(){
+            return this.playing ? "icon-ziyuan1" : "icon-ziyuan"
+        },
+        miniIcon(){
+            return this.playing ? "icon-ziyuan1" : "icon-ziyuan"
+        },
+        cdRotate(){
+                return this.playing ? "play" : "play pause"
+        },
+        percent(){ //歌曲播放的百分比
+            let time = this.songTime.split(':');
+            time = Number(time[0]) * 60 + Number(time[1]);
+            // console.log(this.currentTime/time);
+            return this.currentTime / time;
+        },
         ...mapGetters([
             'fullScreen',
             'playList',
             'currentSong',
-            'singer'
+            'singer',
+            'playing',
+            'currentIndex'
         ])
     },
+    watch:{ //当前歌曲改变 就重新请求歌曲地址 并且播放
+        currentSong(newSong){
+            let ID = newSong.MUSICRID.split('_')[1];
+            this.getSongAndLrc(ID);
+            console.log(this.songUrl);
+        },
+        playing(newPlaying){ //通过监听playing的状态 来控制播放和停止
+            const audio = this.$refs.audio;
+            this.$nextTick(()=>{
+                newPlaying ? audio.play() : audio.pause();
+            });
+        }
+    },
+    created(){
+    },
     mounted(){
+        let id = this.currentSong.MUSICRID.split('_')[1];
+        this.getSongAndLrc(id);
     },
     methods:{
         ...mapMutations({
-            setFullScreen:"SET_FULL_SCREEN"
+            setFullScreen:"SET_FULL_SCREEN",
+            setPlayingState:"SET_PLAYING_STATE",
+            setCurrentIndex:"SET_CURRENT_INDEX"
         }),
+        togglePlaying(){
+            this.setPlayingState(!this.playing);//改变vuex中state的playing 控制暂停播放
+        },
+        //上一首
+        pre(){
+            if(!this.songReady) return;
+            if(!this.playing){
+                this.setPlayingState(true);
+            }
+            if(this.currentIndex == 0){
+                let index = this.playList.length - 1;
+                this.setCurrentIndex(index);
+            }else{
+                let index = this.currentIndex - 1;
+                this.setCurrentIndex(index);
+            }
+            this.songReady = false;
+        },
+        //下一首
+        next(){
+            if(!this.songReady) return;
+            if(!this.playing){
+                this.setPlayingState(true);
+            }
+            if(this.currentIndex == this.playList.length - 1){
+                this.setCurrentIndex(0);
+            }else{
+                let index = this.currentIndex + 1;
+                this.setCurrentIndex(index);
+            }
+            this.songReady = false;
+        },
+        updataTime(e){ //播放当前时间
+            this.currentTime = e.target.currentTime; //这是可读写的属性
+        },
+        ready(){ //当歌曲可以播放时
+            this.songReady = true;
+        },
+        error(){ //当歌曲加载失败
+            this.songReady = true;
+        },
         back(){
             this.setFullScreen(false);
         },
         open(){
             this.setFullScreen(true);
+        },
+        //请求歌曲地址和歌词
+        getSongAndLrc(id){
+                axios.all([songApi.play(id),songApi.getLrclist(id)]).
+                then(axios.spread((songUrl,lrclist)=>{
+                    this.songUrl = songUrl.data.url;
+                    this.lrclist = lrclist.data.data.lrclist;
+                    this.songTime = lrclist.data.data.songinfo.songTimeMinutes;
+                    this.songImg = lrclist.data.data.songinfo.pic;
+                    console.log(this.songTime,this.lrclist);
+                }))
+
         },
         _getPosAndScale(){
             let littleImgX = this.$refs.littleImg.clientWidth;
@@ -104,7 +224,7 @@ export default {
             let offsetX = X2-X1; //cd 的X位置的偏移
             let Y1 = littleImgOffsetTop + littleImgX/2;//小图片中心到bottom的距离
             let CdToBottom = document.documentElement.clientHeight - this.$refs.top.clientHeight;//cd顶部到body底部的距离
-            let Y2 =  CdToBottom - this.$refs.wrapper.clientHeight / 2;//cd 中心到body底部的距离
+            let Y2 = CdToBottom - this.$refs.wrapper.clientHeight / 2;//cd 中心到body底部的距离
             let offsetY = Y2-Y1; //y轴 的偏移
             let scale = littleImgX / this.$refs.wrapper.clientHeight; //缩小倍数
             return{
@@ -144,7 +264,7 @@ export default {
             let {offsetX,offsetY,scale} = this._getPosAndScale();
             let animation = {
                 0: { transform: `translate3d(0,0,0) scale(1)` },
-                100: {  transform: `translate3d(-${offsetX}px,${offsetY}px,0) scale(${scale})`}
+                100: { transform: `translate3d(-${offsetX}px,${offsetY}px,0) scale(${scale})`}
                 }
             animations.registerAnimation({
                 name: 'leave',
@@ -159,8 +279,20 @@ export default {
         afterLeave(){
             animations.unregisterAnimation('leave');
             this.$refs.wrapper.style.animation = '';
+        },
+        format(time){
+            Math.floor(time);
+            let minute =Math.floor(time / 60);
+            let second = Math.floor(time % 60);
+            second.toFixed(2);
+            if(minute < 10){
+                minute = "0" + minute;
+            }
+            if(second < 10){
+                second = "0" + second; 
+            }
+            return `${minute}:${second}`;
         }
-
     }
 }
 </script>
@@ -243,17 +375,46 @@ export default {
                     width: 100%;
                     height: 100%;
                 }
+                &.play{
+                   animation: rotate 20s linear infinite; 
+                }
+                &.pause{
+                    animation-play-state: paused;
+                }
             }
         }
         .bottom{
-             height: 20vh;
+            height: 20vh;
             width: 100%;
             position: fixed;
             bottom: 0;
             left: 0;
             .progress-wrapper{
                 height: 30%;
-                background: gainsboro;
+                display: flex;
+                align-items: center;
+                width: 80%;
+                margin: 0px auto;
+                padding: 10px 0;
+                .time{
+                    color: @color-text;
+                    font-size: @font-size-small;
+                    flex: 0 0 .6rem;
+                    line-height: .6rem;
+                    width: .6rem;
+                    &.time-l{
+                        text-align: left;
+                    }
+                    &.time-r{
+                        text-align: right;
+                    }
+                }
+                .progress-bar-wrapper{
+                    padding: 0 .05rem;
+                    box-sizing: border-box;
+                    flex: 1
+                }
+                // background: gainsboro;
             }
             .operators{
                 height: 70%;
@@ -276,7 +437,7 @@ export default {
                      .icon-tubiaozhizuomoban1,.icon-tubiaozhizuomoban{
                          font-weight: 600;
                      }
-                     .icon-ziyuan{
+                     .icon-ziyuan,.icon-ziyuan1{
                          font-size: .7rem;
                      }
 
@@ -301,6 +462,12 @@ export default {
             width: 7vh;
             position: absolute;
             left: 3vh;
+            &.play{
+                   animation: rotate 20s linear infinite; 
+                }
+            &.pause{
+                animation-play-state: paused;
+            }
             img{
                 border-radius: 50%;
                 height: 100%;
@@ -338,7 +505,7 @@ export default {
                 align-items: center;
                 color: @color-theme-d;
             }
-            .icon-ziyuan1{
+            .icon-ziyuan1,.icon-ziyuan{
                  font-size: .6rem;
                  position: absolute;
                  right: .8rem;
@@ -369,6 +536,14 @@ export default {
     }
     .mini-enter, .mini-leave-to{
         opacity: 0
+    }
+    @keyframes rotate{
+      0%{
+      transform: rotate(0);
+      }
+     100%{
+      transform: rotate(360deg);
+     }
     }
 }
 </style>

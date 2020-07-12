@@ -15,6 +15,7 @@ import Loading from '../../components/loading/loading.vue';
 import SingerApi from '../../api/singerApi.js';
 import {SET_SINGER} from '../../store/mutationType';
 import {mapMutations} from 'vuex';
+// import axios from 'axios';
 export default {
   components:{
     ListView,
@@ -28,7 +29,7 @@ export default {
   mounted(){
     SingerApi.getSingers().then((res)=>{
       this.singerData=res.data.artistList;
-    })
+    });
   },
   methods:{
     clickItem(item){

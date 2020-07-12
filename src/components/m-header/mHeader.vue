@@ -1,7 +1,7 @@
 <template>
     <div class="h-box">
         <div class="img"></div>
-        <h3>Chicken Music</h3>
+        <h3>Dessert Music</h3>
         <i class="iconfont icon-yonghu"></i>
     </div>
 </template>

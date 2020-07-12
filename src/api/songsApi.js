@@ -15,5 +15,23 @@ export default{
                 size
             }
         })
+    },
+    play(id){
+        return request({
+            url:"/play",
+            methods :'get',
+            params:{
+                id
+            }
+        })
+    },
+    getLrclist(id){
+        return request({
+            url:"/lrclist",
+            methods :'get',
+            params:{
+                id
+            }
+        })
     }
 }
