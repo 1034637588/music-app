@@ -1,8 +1,14 @@
 <template>
-  <div class="progress-bar" ref="progressBar">
+  <div class="progress-bar" @click="pclick" ref="progressBar">
     <div class="bar-inner">
-      <div class="progress" :style="{width:offsetWidth}" ref="progress"></div>
-      <div class="progress-btn-wrapper" :style="{left:left}"  ref="progressBtn">
+      <div class="progress" :style="{width:`${offsetWidth}px`}" ref="progress"></div>
+      <div class="progress-btn-wrapper" 
+          :style="{left:left>-8 ? `${left}px` : '-8px'}"
+          ref="progressBtn"
+          @touchstart.prevent="touchStart"
+          @touchmove.prevent="touchMove"
+          @touchend="touchEnd"
+          >
         <div class="progress-btn"></div>
       </div>
     </div>
@@ -18,14 +24,45 @@ export default {
     },
     data(){
         return{
-            offsetWidth:"0",
-            left:"-8px"
+            offsetWidth:0,
+            left:"-8"
         }
     },
     watch:{
         percent(newPercent){
-            this.offsetWidth = (this.$refs.progressBar.clientWidth - 16) * newPercent + "px";
-            this.left = ( this.$refs.progressBar.clientWidth -16) * newPercent - 8 + "px"
+            if(this.touch.initiaed) return; //当拖动进度条时停止进度改变
+            this.offsetWidth = (this.$refs.progressBar.clientWidth - 16) * newPercent;
+            this.left = ( this.$refs.progressBar.clientWidth -16) * newPercent - 8;
+        }
+    },
+    created(){
+        this.touch = {};
+    },
+    methods:{
+        touchStart(e){
+            this.touch.initiaed = true;
+            this.touch.touchX = e.changedTouches[0].pageX;
+            this.touch.offsetWidth = this.offsetWidth;
+        },
+        touchMove(e){
+            if(!this.touch.initiaed){
+                return;
+            }
+            let dartaX = e.changedTouches[0].pageX - this.touch.touchX;
+            if(this.touch.offsetWidth + dartaX > this.$refs.progressBar.clientWidth){
+                return;
+            } //边界条件
+            this.left = Math.max(0,Math.min(this.touch.offsetWidth + dartaX -8,this.$refs.progressBar.clientWidth));
+            this.offsetWidth =Math.max(0,Math.min(this.touch.offsetWidth + dartaX,this.$refs.progressBar.clientWidth));
+            this.$emit("changePrecent",this.offsetWidth / this.$refs.progressBar.clientWidth);
+        },
+        touchEnd(e){
+            this.touch.initiaed = false;
+        },
+        pclick(e){
+            this.left = e.pageX - this.$refs.progressBar.offsetLeft -8;
+            this.offsetWidth = e.pageX - this.$refs.progressBar.offsetLeft;
+            this.$emit("changePrecent",this.offsetWidth / this.$refs.progressBar.clientWidth);
         }
     }
 }

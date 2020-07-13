@@ -34,7 +34,7 @@
                     <div class="progress-wrapper">
                         <span class="time time-l">{{format(currentTime)}}</span>
                         <div class="progress-bar-wrapper">
-                            <progress-bar :percent="percent"></progress-bar>
+                            <progress-bar @changePrecent="changePrecent" :percent="percent"></progress-bar>
                         </div>
                         <span class="time time-r">{{songTime}}</span>
                     </div>
@@ -187,6 +187,15 @@ export default {
                 this.setCurrentIndex(index);
             }
             this.songReady = false;
+        },
+        changePrecent(percent){ //拖动进度条
+            let time = this.songTime.split(':');
+            time = Number(time[0]) * 60 + Number(time[1]);
+            let currentTime = time * percent;
+            this.$refs.audio.currentTime = currentTime;
+            if(!this.playing){
+                this.setPlayingState(true);
+            }
         },
         updataTime(e){ //播放当前时间
             this.currentTime = e.target.currentTime; //这是可读写的属性
