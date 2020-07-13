@@ -39,8 +39,9 @@
                         <span class="time time-r">{{songTime}}</span>
                     </div>
                     <div class="operators">
-                        <div class="icon i-left">
-                            <i class="iconfont icon-yinleliebiao"></i>
+                        <!-- 播放模式 -->
+                        <div class="icon i-left" @click.stop="changeMode">  
+                            <i class="iconfont" :class="modeIcon"></i>
                         </div>
                         <div @click.stop="pre" class="icon i-left" >
                             <i class="iconfont icon-tubiaozhizuomoban1"></i>
@@ -67,10 +68,12 @@
                 <h2 class="name" v-html="currentSong.NAME"></h2>
                 <p class="desc" v-html="currentSong.ARTIST"></p>
             </div>
-            <div @click.stop="togglePlaying" class="control">
-                <i :class="miniIcon" class="iconfont"></i>
+            <div @click.stop="togglePlaying" class="control one">
+                <progress-cir :radius="radius" :percent="percent">
+                     <i :class="miniIcon" ref = "icon" class="progress-cir-icon iconfont"></i>
+                </progress-cir>
             </div>
-            <div class="control">
+            <div class="control two">
                 <i class="iconfont icon-yinleliebiao"></i>
             </div>
         </div>
@@ -80,6 +83,7 @@
         @timeupdate="updataTime"
         @error="error" 
         @canplay="ready" 
+        @ended="ended"
         autoplay 
         preload:auto 
         :src="songUrl">
@@ -92,9 +96,12 @@ import axios from 'axios';
 import {mapGetters,mapMutations} from 'vuex';
 import animations from 'create-keyframe-animation';
 import progressBar from '../../components/progressBar/progressBar';
+import progressCir from '../../components/progress-circle/progressCircle';
+import {shuffle} from '../../assets/utils/random';
 export default {
     components:{
-        progressBar
+        progressBar,
+        progressCir
     },
     data(){
         return{
@@ -103,10 +110,14 @@ export default {
             songReady:false,
             songTime:"",
             currentTime:"",
-            songImg:""
+            songImg:"",
+            radius:35
         }
     },
     computed:{
+        modeIcon(){
+            return this.mode == 0 ? 'icon-yinleliebiao' : this.mode == 1 ? 'icon-xunhuanbofang' : 'icon-suijibofang'
+        },
         playIcon(){
             return this.playing ? "icon-ziyuan1" : "icon-ziyuan"
         },
@@ -119,7 +130,6 @@ export default {
         percent(){ //歌曲播放的百分比
             let time = this.songTime.split(':');
             time = Number(time[0]) * 60 + Number(time[1]);
-            // console.log(this.currentTime/time);
             return this.currentTime / time;
         },
         ...mapGetters([
@@ -128,11 +138,17 @@ export default {
             'currentSong',
             'singer',
             'playing',
-            'currentIndex'
+            'currentIndex',
+            'mode',
+            'sequenceList'
         ])
     },
     watch:{ //当前歌曲改变 就重新请求歌曲地址 并且播放
-        currentSong(newSong){
+        currentSong(newSong,oldSong){
+            if(newSong.MUSICRID == oldSong.MUSICRID){
+                return;
+            }
+            console.log(newSong,oldSong);
             let ID = newSong.MUSICRID.split('_')[1];
             this.getSongAndLrc(ID);
             console.log(this.songUrl);
@@ -149,15 +165,37 @@ export default {
     mounted(){
         let id = this.currentSong.MUSICRID.split('_')[1];
         this.getSongAndLrc(id);
+        // this.radius = this.$refs.icon.clientWidth;
     },
     methods:{
         ...mapMutations({
             setFullScreen:"SET_FULL_SCREEN",
             setPlayingState:"SET_PLAYING_STATE",
-            setCurrentIndex:"SET_CURRENT_INDEX"
+            setCurrentIndex:"SET_CURRENT_INDEX",
+            setMode:"SET_PLAY_MODE",
+            setPlayList:"SET_PLAYLIST"
         }),
         togglePlaying(){
             this.setPlayingState(!this.playing);//改变vuex中state的playing 控制暂停播放
+        },
+        changeMode(){ //改变播放模式
+            let mode = (this.mode + 1) % 3;
+            this.setMode(mode);
+            let list = null;
+            if(mode==2){ //if是随机播放
+               list = shuffle(this.sequenceList);
+            }else{
+               list = this.sequenceList;
+            }
+            this.resetCurrentIndex(list);
+            this.setPlayList(list);
+
+        },
+        resetCurrentIndex(list){ //由于打乱顺序 当前歌曲是根据当前的列表索引定的 那么当前歌曲会改变
+            let index = list.findIndex((item)=>{
+                return item.MUSICRID == this.currentSong.MUSICRID;
+            });
+            this.setCurrentIndex(index);
         },
         //上一首
         pre(){
@@ -202,6 +240,33 @@ export default {
         },
         ready(){ //当歌曲可以播放时
             this.songReady = true;
+        },
+        ended(){ //歌曲播放结束
+            if(this.mode == 1){ //循环播放的话
+                this.$refs.audio.currentTime = 0; //从头播放
+                this.$refs.audio.play();
+                this.setPlayingState(true);
+            }else{
+                if (!this.songReady) { //歌曲不能播放的话 就不动
+                    return;
+                }
+                if (this.playList.length === 1) { //如果列表只有一首歌
+                    this.$refs.audio.currentTime = 0; //从头播放
+                    this.$refs.audio.play();
+                    this.setPlayingState(true);
+                    return;
+                } else { 
+                    let index = this.currentIndex + 1; //如果到了最后一首+1 到第一首
+                    if (index === this.playList.length) {
+                        index = 0;
+                    }
+                    this.setCurrentIndex(index);
+                    if (!this.playing) {
+                        this.togglePlaying();
+                    }
+                    }
+                this.songReady = false;
+            }
         },
         error(){ //当歌曲加载失败
             this.songReady = true;
@@ -443,11 +508,17 @@ export default {
                      i{
                          font-size: .6rem;
                      }
+                    //  .icon-yinleliebiao
+                     .icon-xunhuanbofang,.icon-suijibofang {
+                         font-size: .53rem;
+                     }
                      .icon-tubiaozhizuomoban1,.icon-tubiaozhizuomoban{
                          font-weight: 600;
                      }
                      .icon-ziyuan,.icon-ziyuan1{
                          font-size: .7rem;
+                         position: absolute;
+                        //  left: 0;
                      }
 
                 }
@@ -513,16 +584,25 @@ export default {
                 justify-content: center;
                 align-items: center;
                 color: @color-theme-d;
-            }
-            .icon-ziyuan1,.icon-ziyuan{
-                 font-size: .6rem;
+                &.one{
                  position: absolute;
                  right: .8rem;
-            }
-            .icon-yinleliebiao{
-                font-size: .6rem;
+                }
+                &.two{
                  position: absolute;
                  right: 0.05rem;
+                }
+            }
+            .icon-ziyuan1,.icon-ziyuan{
+                 font-size: 35px;
+            }
+            .progress-cir-icon{
+                position: absolute;
+                left: 0;
+                top: 0;
+            }
+            .icon-yinleliebiao{
+                font-size: 35px;
             }
     }
     .normal-enter-active, .normal-leave-active{

@@ -7,7 +7,7 @@
             zIndex:headIndex,
             transform:scale}"
         ref="head">
-        <div class="play" v-show="palyIndex==20" :style="{zIndex:palyIndex}">
+        <div class="play" @click="random" v-show="palyIndex==20" :style="{zIndex:palyIndex}">
           <i class="iconfont icon-ziyuan"></i>
           <span class="text">随机播放全部</span>
         </div>
@@ -67,7 +67,7 @@ export default {
             scrollY:0,
             palyIndex:20,
             headHeight:"40vh",
-            headIndex:-1,
+            headIndex:0,
             scale:"",
             backBg:"",
             bgStyle:`url(${this.bgImage})`
@@ -87,7 +87,7 @@ export default {
             this.headIndex= 10;
             return;
         }else{
-            this.headIndex = -1;
+            this.headIndex = 0;
             this.headHeight = "40vh"; //在滚动小于head高度减去back的高度时 让蒙层向上跟随平移(蒙层的层级高于head的层级) 蒙层的背景和歌曲list的背景一致 这样就可以有 列表伴随滚动的效果 并且在back处停止
             this.$refs.layer.style.transform = `translate3d(0,${newY-5}px,0)`;
        }
@@ -111,7 +111,8 @@ export default {
     },
     methods:{
         ...mapActions([
-            "selectPlay"
+            "selectPlay",
+            "randomPlay"
         ]),
         back(){
             this.$router.go(-1);
@@ -123,7 +124,12 @@ export default {
             this.selectPlay({
                list:this.songs,
                index
-            })
+            });
+        },
+        random(){
+            this.randomPlay({
+                list: this.songs
+            });
         }
     }
 }
