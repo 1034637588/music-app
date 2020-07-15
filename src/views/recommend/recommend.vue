@@ -4,7 +4,7 @@
       <swiper :data="data"/>
       <h1 class="title">热门歌单推荐</h1>
       <div class="recommendList">
-        <div class="recommendItem" v-for="item in reList" :key="item.id">
+        <div @click="selectitem(item)" class="recommendItem" v-for="item in reList" :key="item.id">
             <div class="left">
               <img @load.once="onloadImg" v-lazy="item.img"/>
             </div>
@@ -18,6 +18,9 @@
   <div class="loadingbox" v-show="!reList.length">
     <loading/>
   </div>
+  <transition name="fade">
+        <router-view></router-view>
+  </transition>
 </scroll-view>
 </template>
 <script>
@@ -26,6 +29,7 @@ import ScrollView from '../../components/scroll/ScrollView.vue';
 import Loading from '../../components/loading/loading.vue';
 import RecommentApi from '../../api/recommendApi.js';
 import Api from '../../api/singerApi.js';
+import {mapMutations} from 'vuex';
 export default {
   components:{
     Swiper,
@@ -43,21 +47,29 @@ export default {
     }
   },
   methods:{
+    ...mapMutations({
+        setDisc :'SET_DISC'
+    }),
     onloadImg(){
       this.$refs.scroll.refresh();
+    },
+    selectitem(item){
+      this.setDisc(item);
+      this.$router.push({
+        path:`/recommend/${item.id}`
+      })
     }
   },
   created(){
-    setTimeout(() => {
-      RecommentApi.TopRecommend().then((res)=>{
-      this.reList = res.data.data;
+    RecommentApi.TopRecommend(1,20).then((res)=>{
+      this.reList = res.data.data.data;
+      console.log(res.data);
     });
-    }, 1000);
   },
   mounted(){
-    setTimeout(() => {
+    this.$nextTick(()=>{
         this.$refs.scroll.refresh();
-    }, 20);
+    })
   }
 }
 </script>
@@ -118,6 +130,16 @@ export default {
       top: 50%;
       left: 50%;
       transform: translate(-50%);
+    }
+    .fade-enter-active,.fade-leave-active{
+    transition: all .5s 0s;
+    }
+    .fade-enter{
+        transform:translate3d(100%,0,0) scale(.2); //进入之前的状态 然后进入后就是远洋 在这个这个之间过度
+        transform-origin: left buttom;
+   }
+    .fade-leave-to{
+      transform:  translate3d(100%,0,0) scale(.2);
     }
   }
 </style>

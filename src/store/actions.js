@@ -3,7 +3,11 @@ import {playMode} from '../assets/config/config';
 import * as types from './mutationType';
 function findIndex(list, song) {
     return list.findIndex((item) => {
-      return item.MUSICRID === song.MUSICRID;
+      if(!item.musicrid){
+        return item.MUSICRID === song.MUSICRID ;
+      }else{
+        return item.musicrid === song.musicrid ;
+      }
     })
   }
 export const selectPlay = function({commit,state},{list,index}){

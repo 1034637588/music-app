@@ -1,6 +1,6 @@
 <template>
   <div class="singerbox">
-      <list-view @clickItem="clickItem" :data="singerData"/>
+      <list-view ref="list" @clickItem="clickItem" :data="singerData"/>
       <transition name="fade">
         <router-view></router-view>
       </transition>
@@ -15,8 +15,10 @@ import Loading from '../../components/loading/loading.vue';
 import SingerApi from '../../api/singerApi.js';
 import {SET_SINGER} from '../../store/mutationType';
 import {mapMutations} from 'vuex';
+import {playlistMixin} from '../../assets/utils/mixin';
 // import axios from 'axios';
 export default {
+  mixins: [playlistMixin],
   components:{
     ListView,
     Loading
@@ -32,6 +34,13 @@ export default {
     });
   },
   methods:{
+    handlePlaylist(playlist) { //实现mixin要实现的方法
+        // const bottom = playlist.length > 0 ? '10vh' : '';
+        // this.$refs.list.$el.style.paddingBottom = bottom;
+        // console.log(this.$refs.list.$el);
+        // this.$refs.list.refresh()
+        // console.log(playlist)
+    },
     clickItem(item){
       this.setSinger(item);
       this.$router.push({

@@ -9,14 +9,14 @@
                 @after-leave="afterLeave">
             <div class="nomal-player" v-show="fullScreen">
                 <div class="background">
-                    <img height="100%" width="100%" :src="currentSong.hts_MVPIC || songImg " alt="歌手照片">
+                    <img height="100%" width="100%" :src="currentSong.hts_MVPIC || currentSong.albumpic  || songImg " alt="歌手照片">
                 </div>
                 <div class="top" ref="top">
                     <div @click="back" class="back">
                         <i class="iconfont icon-wei-"></i>
                     </div>
-                    <h1 class="title" v-html="currentSong.NAME">枫</h1>
-                    <h2 class="subtitle" v-html="currentSong.ARTIST">周杰伦</h2>
+                    <h1 class="title" v-html="currentSong.NAME || currentSong.name"></h1>
+                    <h2 class="subtitle" v-html="currentSong.ARTIST || currentSong.artist"></h2>
                 </div>
                 <div class="middle"
                     ref="middle"
@@ -27,11 +27,11 @@
                     <div class="middle-l">
                         <div class="cd-wrapper" ref = "wrapper">
                             <div :class="cdRotate" class="cd">
-                                <img :src="currentSong.hts_MVPIC || songImg" alt="专辑照片" class="image">
+                                <img :src="currentSong.hts_MVPIC|| currentSong.albumpic || songImg" alt="专辑照片" class="image">
                             </div>
                         </div>
                         <div class="playing-lyric-wrapper">
-                            <div class="playing-lyric">{{lrclist[currentLrcIndex].lineLyric}}</div>
+                            <div class="playing-lyric">{{currentLrc}}</div>
                         </div>
                     </div>
                     <div class="middle-r">
@@ -40,6 +40,9 @@
                                  <!-- @touchstart.stop.prevent="touchStart" @touchend.stop.prevent="touchEnd" -->
                                 <div v-if="lrclist">
                                     <p  ref="lyricLine" v-for="(lyr,index) in lrclist" :key="index" :class="{ current: currentLrcIndex == index}" class="text">{{lyr.lineLyric}}</p>
+                                </div>
+                                <div v-else>
+                                    <p  ref="lyricLine" class="text">"暂无歌词"</p>
                                 </div>
                             </div>
                         </scroll>
@@ -81,7 +84,7 @@
         <transition name="mini">
         <div class="mini-player" @click="open" v-show="!fullScreen">
             <div :class="cdRotate" class="little-img" ref="littleImg">
-                <img :src="currentSong.hts_MVPIC || (songImg || '../../assets/image/default.png')">
+                <img :src="currentSong.hts_MVPIC || currentSong.albumpic|| (songImg || '../../assets/image/default.png')">
             </div>
             <div class="text">
                 <h2 class="name" v-html="currentSong.NAME"></h2>
@@ -158,6 +161,9 @@ export default {
             time = Number(time[0]) * 60 + Number(time[1]);
             return this.currentTime / time;
         },
+        currentLrc(){
+            return this.lrclist ? this.lrclist[this.currentLrcIndex].lineLyric : "暂无歌词";
+        },
         ...mapGetters([
             'fullScreen',
             'playList',
@@ -171,11 +177,18 @@ export default {
     },
     watch:{ //当前歌曲改变 就重新请求歌曲地址 并且播放
         currentSong(newSong,oldSong){
-            if(newSong.MUSICRID == oldSong.MUSICRID){
-                return;
+            console.log(newSong.musicrid);
+            if(!newSong.MUSICRID){
+                if(newSong.musicrid == oldSong.musicrid){
+                    return;
+                }
+                let ID = newSong.musicrid.split('_')[1];
+                this.getSongAndLrc(ID);
+            }else{
+                if(newSong.MUSICRID == oldSong.MUSICRID){ return; }
+                let ID = newSong.MUSICRID.split('_')[1];
+                this.getSongAndLrc(ID);
             }
-            let ID = newSong.MUSICRID.split('_')[1];
-            this.getSongAndLrc(ID);
         },
         playing(newPlaying){ //通过监听playing的状态 来控制播放和停止
             const audio = this.$refs.audio;
@@ -184,6 +197,9 @@ export default {
             });
         },
         currentTime(newTime,oldTime){ //监听当前播放时间的变化 改变歌词滚动
+            if(!this.lrclist){
+                return;
+            }
             for (let index = 0; index < this.lrclist.length; index++) {
                 const time = this.lrclist[index].time;
                 if(time > newTime){
@@ -205,7 +221,8 @@ export default {
         this.touch = {};
     },
     mounted(){
-        let id = this.currentSong.MUSICRID.split('_')[1];
+        console.log(666)
+        let id = this.currentSong.MUSICRID.split('_')[1] || this.currentSong.musicrid.split('_')[1] ;
         this.getSongAndLrc(id);
         // this.radius = this.$refs.icon.clientWidth;
     },
@@ -235,7 +252,11 @@ export default {
         },
         resetCurrentIndex(list){ //由于打乱顺序 当前歌曲是根据当前的列表索引定的 那么当前歌曲会改变
             let index = list.findIndex((item)=>{
-                return item.MUSICRID == this.currentSong.MUSICRID;
+                if(!item.musicrid){
+                    return item.MUSICRID == this.currentSong.MUSICRID;
+                }else{
+                    return item.musicrid == this.currentSong.musicrid;
+                }
             });
             this.setCurrentIndex(index);
         },

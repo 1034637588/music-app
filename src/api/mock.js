@@ -58,8 +58,8 @@ musicId 就是搜索歌词的id  -- 就上上面搜索出来的 'MUSICRID': 'MUS
 
 
 歌曲播放
-http://www.kuwo.cn/url?format=mp3&rid=95379975&response=url&type=convert_url3&br=128kmp3&from=web&t=1594220085844&httpsStatus=1&reqId=f69c5850-c12a-11ea-b998-e75008adf45e
-rid={95379975} 就是歌曲id
+http://www.kuwo.cn/url?format=mp3&rid=7134460&response=url&type=convert_url3&br=128kmp3&from=web&t=1594220085844&httpsStatus=1&reqId=f69c5850-c12a-11ea-b998-e75008adf45e
+rid={95379975} 就是歌曲id 
 
 返回歌曲地址
 {"code": 200, "msg": "success", "url": "https://win-web-nf01-sycdn.kuwo.cn/4904edc99aec0832a031253be6b14a60/5f05df7c/resource/n1/18/76/632545120.mp3"}

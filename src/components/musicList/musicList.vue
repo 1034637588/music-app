@@ -20,7 +20,7 @@
         </div>
     <div class="bg-layer" ref="layer"></div>
     <scroll-view 
-        :data="songs" 
+        :data="songs"
         class="scroll"
         :probeType=3
         :listenScroll=true
@@ -136,6 +136,7 @@ export default {
 </script>
 <style lang="less" scoped>
 @import '../../assets/styles/css/varibal.less';
+@import '../../assets/styles/css/mixin.less';
 .music-list{
     height: 100%;
     overflow: hidden;
@@ -167,14 +168,17 @@ export default {
         z-index: 20;
         }
         .title{
+            .no-wrap();
             position: absolute;
             top:0;
             left: 50%;
             height: 100%;
+            width: 70%;
             transform: translate(-50%);
             font-size: @font-size-large;
             color: @color-text;
             z-index: 20;
+            text-align: center;
         }
     }
     .play{

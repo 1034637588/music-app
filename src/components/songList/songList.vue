@@ -6,7 +6,7 @@
           <span></span>
         </div>
         <div class="content">
-          <h2 class="name" v-html="item.SONGNAME"></h2>
+          <h2 class="name" v-html="item.SONGNAME || item.name"></h2>
           <p class="desc" v-html="getDesc(item)"></p>
         </div>
       </li>
@@ -33,10 +33,10 @@
         this.$emit("select",item,index);
       },
        getDesc(song){
-         if(song.ALBUM!=''){
-          return `${song.ARTIST}·${song.ALBUM}`;
+         if((song.ALBUM || song.album)!=''){
+          return `${song.ARTIST || song.artist}·${song.ALBUM || song.album}`;
          }else{
-           return `${song.ARTIST}`
+           return `${song.ARTIST || song.album}`
          }
       }
     }
