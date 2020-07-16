@@ -39,10 +39,14 @@
 <script>
 import Scorll from '../../components/scroll/ScrollView';
 import utils from '../../assets/utils/dom';
+import {playlistMixin} from '../../assets/utils/mixin';
 export default {
     props: {
        data:Array
     },
+    mixins:[
+        playlistMixin
+    ],
     data(){
         return{
             heightList:[],
@@ -133,7 +137,16 @@ export default {
         },
         cliceItem(item){ //触发点击事件
             this.$emit("clickItem",item);
-        }
+        },
+        handlePlaylist(playList){ //解决小播放器遮挡住列表的问题
+            if(playList.length > 0){
+                this.$refs.listview.$el.children[0].style.paddingBottom="10vh";
+                this.$refs.listview.refresh();
+            }else{
+                this.$refs.listview.$el.children[0].style.paddingBottom="0";
+                this.$refs.listview.refresh();
+            }
+         }
     }
 }
 </script>

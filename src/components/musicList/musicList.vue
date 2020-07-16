@@ -19,12 +19,13 @@
         <h1 class="title">{{title}}</h1>
         </div>
     <div class="bg-layer" ref="layer"></div>
-    <scroll-view 
+    <scroll-view
         :data="songs"
         class="scroll"
         :probeType=3
         :listenScroll=true
         @scroll="scroll"
+        ref = 'scroll'
         >
         <song-list @select="selectSong" :rank="rank" :songs="songs"/>
         <div class="loadingbox" v-show="isLoad">
@@ -37,13 +38,17 @@
 import {mapGetters,mapActions} from 'vuex';
 import songList from '../songList/songList';
 import scrollView from '../scroll/ScrollView';
-import Loading from '../../components/loading/loading'
+import Loading from '../../components/loading/loading';
+import {playlistMixin} from '../../assets/utils/mixin';
 export default {
     components:{
         songList,
         scrollView,
         Loading
     },
+    mixins:[
+        playlistMixin
+    ],
     props:{
         bgImage: {
         type: String,
@@ -134,7 +139,16 @@ export default {
             this.randomPlay({
                 list: this.songs
             });
-        }
+        },
+         handlePlaylist(playList){ //解决小播放器遮挡住列表的问题
+            if(playList.length > 0){
+                this.$refs.scroll.$el.children[0].style.paddingBottom="10vh";
+                this.$refs.scroll.refresh();
+            }else{
+                this.$refs.scroll.$el.children[0].style.paddingBottom="0";
+                this.$refs.scroll.refresh();
+            }
+            }
     }
 }
 </script>

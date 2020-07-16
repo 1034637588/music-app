@@ -29,13 +29,18 @@ import ScrollView from '../../components/scroll/ScrollView.vue';
 import Loading from '../../components/loading/loading.vue';
 import RecommentApi from '../../api/recommendApi.js';
 import Api from '../../api/singerApi.js';
+import {playlistMixin} from '../../assets/utils/mixin';
 import {mapMutations} from 'vuex';
+
 export default {
   components:{
     Swiper,
     ScrollView,
     Loading
   },
+  mixins:[
+    playlistMixin
+  ],
   data(){
     return {
       banner:[
@@ -59,6 +64,15 @@ export default {
       this.$router.push({
         path:`/recommend/${item.id}`
       })
+    },
+    handlePlaylist(playList){
+      if(playList.length > 0){
+        this.$refs.scroll.$el.children[0].style.paddingBottom="10vh";
+        this.$refs.scroll.refresh();
+      }else{
+        this.$refs.scroll.$el.children[0].style.paddingBottom="0";
+        this.$refs.scroll.refresh();
+      }
     }
   },
   created(){

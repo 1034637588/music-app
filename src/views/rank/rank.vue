@@ -27,12 +27,16 @@
   import bangApi from '../../api/bangApi';
   import scroll from '../../components/scroll/ScrollView';
   import loading from '../../components/loading/loading';
+  import {playlistMixin} from '../../assets/utils/mixin';
   import {mapMutations} from 'vuex';
 export default {
   components:{
     scroll,
     loading
   },
+  mixins:[
+    playlistMixin
+  ],
   data(){
     return{
       bangList:[]
@@ -64,6 +68,15 @@ export default {
     selectItem(item){
       this.setBang(item);
       this.$router.push({path:`/rank/${item.sourceid}`});
+    },
+    handlePlaylist(playList){ //解决小播放器遮挡住列表的问题
+            if(playList.length > 0){
+                this.$refs.toplist.$el.children[0].style.paddingBottom="10vh";
+                this.$refs.toplist.refresh();
+            }else{
+                this.$refs.toplist.$el.children[0].style.paddingBottom="0";
+                this.$refs.toplist.refresh();
+            }
     }
   }
 }
