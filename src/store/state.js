@@ -8,6 +8,7 @@ const state = {
     sequenceList:[],
     mode: sequence,
     currentIndex : -1, //当前播放的歌曲
-    disc:[] //推荐歌单
+    disc:{}, //推荐歌单
+    bang:{}
 }
 export default state;

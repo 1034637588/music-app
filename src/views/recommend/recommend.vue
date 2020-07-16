@@ -1,7 +1,7 @@
 <template>
  <scroll-view  class="recommend" :data="reList" ref="scroll">
   <div>
-      <swiper :data="data"/>
+      <swiper :data="banner"/>
       <h1 class="title">热门歌单推荐</h1>
       <div class="recommendList">
         <div @click="selectitem(item)" class="recommendItem" v-for="item in reList" :key="item.id">
@@ -38,10 +38,11 @@ export default {
   },
   data(){
     return {
-      data:[
-        {id:"1",img:"https://kwimg4.kuwo.cn/star/upload/43/83/1593867014431_.jpg"},
-        {id:"2",img:"https://kwimg1.kuwo.cn/star/upload/31/68/1593879296854_.jpg"},
-        {id:"3",img:"https://kwimg3.kuwo.cn/star/upload/69/35/1593507499521_.jpg"}
+      banner:[
+        {id:"1",img:"http://img1.kwcdn.kuwo.cn/star/upload/10/10/1482312358874_.jpg"},
+        {id:"2",img:"http://img2.kwcdn.kuwo.cn/star/upload/10/10/1453347776330_.jpg"},
+        {id:"3",img:"http://kwimg4.kuwo.cn/star/upload/16/47/1586399257987_.jpg"},
+        {id:"4",img:"http://kwimg3.kuwo.cn/star/upload/72/43/1587991612257_.jpg"}
       ],
       reList:[]
     }
@@ -65,6 +66,9 @@ export default {
       this.reList = res.data.data.data;
       console.log(res.data);
     });
+    // RecommentApi.getBanner().then((res)=>{
+    //   this.banner = res.data.data;
+    // })
   },
   mounted(){
     this.$nextTick(()=>{
@@ -75,6 +79,7 @@ export default {
 </script>
 <style lang="less" scoped>
 @import '../../assets/styles/css/varibal.less';
+@import '../../assets/styles/css/mixin.less';
   .recommend{
     display: flex;
     flex-flow: column nowrap;
@@ -112,12 +117,15 @@ export default {
         display: flex;
         flex-flow: column nowrap;
         justify-content: center;
+        overflow: hidden;
+        box-sizing: border-box;
         .r-title{
          font-size: @font-size-medium;
          color: @color-text;
          margin-bottom: .2rem;
         }
         .content{
+          width: 100%;
           font-size: @font-size-medium;
           color: @color-text-d;
         }

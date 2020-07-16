@@ -2,7 +2,7 @@
   <div class="swiper-box" ref="swiper">
     <div class="scroll-box" :style="{width:width}"  ref="scroll">
       <div class="item" v-for="(item,index) in data" :key="index">
-        <a class="img-box"><img :src="item.img"/></a>
+        <a class="img-box" href="item.url"><img :src="item.img"/></a>
       </div>
     </div>
     <div class="dots">

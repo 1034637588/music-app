@@ -26,7 +26,7 @@
         :listenScroll=true
         @scroll="scroll"
         >
-        <song-list @select="selectSong" :songs="songs"/>
+        <song-list @select="selectSong" :rank="rank" :songs="songs"/>
         <div class="loadingbox" v-show="isLoad">
           <loading/>
         </div>
@@ -58,6 +58,10 @@ export default {
         default: ''
       },
       isLoad:{
+        type: Boolean,
+        default: false
+      },
+      rank:{
         type: Boolean,
         default: false
       }

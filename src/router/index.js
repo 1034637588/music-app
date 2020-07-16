@@ -27,7 +27,13 @@ const routes = [
     ]
   },{
     path:'/rank',
-    component:()=>import('../views/rank/rank')
+    component:()=>import('../views/rank/rank'),
+    children:[
+      {
+        path:':id',
+        component:()=>import('../views/rank-detail/rankDetail')
+      }
+    ]
   },{
     path:'/search',
     component:()=>import('../views/search/search')

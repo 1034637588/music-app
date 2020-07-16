@@ -6,6 +6,12 @@ const request = axios.create({
     headers:{'Content-Type':"application/json"}
   });
 export default{
+    getBanner(){
+        return request({
+            url:'/banner',
+            method:'get'
+        })
+    },
     TopRecommend(page,size){
         return request({
             url:'/playlist',

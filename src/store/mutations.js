@@ -23,6 +23,9 @@ const mutations = {
     },
     [types.SET_DISC](state,disc){
       state.disc = disc;
+    },
+    [types.SET_BANG](state,bang){
+      state.bang = bang;
     }
 }
 export default mutations;

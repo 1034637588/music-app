@@ -15,6 +15,14 @@ const request = axios.create({
         }
 });
 
+//获取轮播图
+app.get('/banner',(req,response)=>{
+    let url = "http://www.kuwo.cn/api/www/banner/index/bannerList?httpsStatus=1&reqId=8ff0fa80-c705-11ea-bb3b-132f1b474474";
+    request.get(url).then(res=>{
+        response.json(res.data);
+    });
+    })
+
 //获取歌曲根据歌手名
 app.get('/song',(req,response)=>{
     let {name,page,size} = req.query;
@@ -44,7 +52,7 @@ app.get('/lrclist',(req,response)=>{
 //获取歌单
 app.get('/playlist',(req,response)=>{
     let {page,size} = req.query;
-    let url = `http://www.kuwo.cn/api/pc/classify/playlist/getTagPlayList?loginUid=1418640818&loginSid=3254760819&id=1848&pn=${page}&rn=${size}&httpsStatus=1&reqId=839824a0-c69e-11ea-bb3b-132f1b474474`;
+    let url = `http://www.kuwo.cn/api/pc/classify/playlist/getRcmPlayList?loginUid=1418640818&loginSid=3254760819&pn=${page}&rn=${size}&order=new&httpsStatus=1&reqId=263f7130-c704-11ea-bb3b-132f1b474474`;
     request.get(url).then(res=>{
         response.json(res.data);
     })
@@ -58,6 +66,22 @@ app.get('/playlistInfo',(req,response)=>{
             response.json(res.data);
         })
 });
+
+//获取排行榜
+app.get('/bangMenu',(req,response)=>{
+    let url = "http://www.kuwo.cn/api/www/bang/bang/bangMenu?httpsStatus=1&reqId=b0af8f30-c709-11ea-a0e7-9b7786e408a2";
+    request.get(url).then(res=>{
+        response.json(res.data);
+        })
+});
+app.get('/bangMusicList',(req,response)=>{
+    let {bangid,page,size} = req.query;
+    let url = `http://www.kuwo.cn/api/www/bang/bang/musicList?bangId=${bangid}&pn=${page}&rn=${size}&httpsStatus=1&reqId=39e83ea0-c70f-11ea-a0e7-9b7786e408a2`;
+    request.get(url).then(res=>{
+        response.json(res.data);
+        });
+});
+
 app.listen('9000',()=>{
 console.log('ok');
 });

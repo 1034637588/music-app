@@ -3,9 +3,9 @@
     <ul ref="songul">
       <li @click="selectItem(item,index)" class="item" v-for="(item,index) in songs" :key="item.MUSICRID">
         <div class="rank" v-show="rank">
-          <span></span>
+          <span :class="getRankCls(index)" v-text="getRankText(index)">{{index+1}}</span>
         </div>
-        <div class="content">
+        <div class="content" :style="{padding: rank? '0' : ' padding:0 8%;'}">
           <h2 class="name" v-html="item.SONGNAME || item.name"></h2>
           <p class="desc" v-html="getDesc(item)"></p>
         </div>
@@ -33,12 +33,24 @@
         this.$emit("select",item,index);
       },
        getDesc(song){
-         if((song.ALBUM || song.album)!=''){
+         if((song.ALBUM || song.album)){
           return `${song.ARTIST || song.artist}·${song.ALBUM || song.album}`;
          }else{
            return `${song.ARTIST || song.album}`
          }
-      }
+      },
+       getRankCls(index) {
+        if (index <= 2) {
+          return `icon icon${index}`
+        } else {
+          return 'text'
+        }
+      },
+        getRankText(index) {
+          if (index > 2) {
+            return index + 1
+          }
+        }
     }
   }
 </script>
@@ -54,9 +66,31 @@
       height: 10vh;
       font-size: @font-size-medium;
       .rank{
-          width: 8%;
-          height: 100%;
-          background: chartreuse;
+          width: 10vh;
+          height: 10vh;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          .icon{
+            width: 8vh;
+            height: 8vh;
+            background-size: 4vh 4vh;
+            background-repeat: no-repeat;
+            background-position: center;
+            &.icon0{
+              background-image: url('../../assets/image/first@3x.png');
+            }
+            &.icon1{
+               background-image: url('../../assets/image/second@3x.png');
+            }
+            &.icon2{
+              background-image: url('../../assets/image/third@3x.png');
+            }
+          }
+        .text{
+          color: @color-theme;
+          font-size: @font-size-large;
+        }
       }
       .content{
         flex: 1;

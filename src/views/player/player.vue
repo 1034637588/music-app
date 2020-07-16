@@ -87,8 +87,8 @@
                 <img :src="currentSong.hts_MVPIC || currentSong.albumpic|| (songImg || '../../assets/image/default.png')">
             </div>
             <div class="text">
-                <h2 class="name" v-html="currentSong.NAME"></h2>
-                <p class="desc" v-html="currentSong.ARTIST"></p>
+                <h2 class="name" v-html="currentSong.NAME || currentSong.name"></h2>
+                <p class="desc" v-html="currentSong.ARTIST || currentSong.artist"></p>
             </div>
             <div @click.stop="togglePlaying" class="control one">
                 <progress-cir :radius="radius" :percent="percent">
@@ -178,7 +178,7 @@ export default {
     watch:{ //当前歌曲改变 就重新请求歌曲地址 并且播放
         currentSong(newSong,oldSong){
             console.log(newSong.musicrid);
-            if(!newSong.MUSICRID){
+            if(!newSong.MUSICRID){ //两种接口 返回的数据不一样
                 if(newSong.musicrid == oldSong.musicrid){
                     return;
                 }

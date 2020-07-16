@@ -1,3 +1,5 @@
+import state from "./state";
+
 export const singer = state=>state.singer;
 export const playing = state=>state.playing;
 export const fullScreen = state=>state.fullScreen;
@@ -9,3 +11,4 @@ export const currentSong = (state) => {
     return state.playList[state.currentIndex] || {};
 };
 export const disc = state=>state.disc;
+export const bang = state=>state.bang;
