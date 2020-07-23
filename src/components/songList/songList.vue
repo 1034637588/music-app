@@ -5,7 +5,10 @@
         <div class="rank" v-show="rank">
           <span :class="getRankCls(index)" v-text="getRankText(index)">{{index+1}}</span>
         </div>
-        <div class="content" :style="{padding: rank? '0' : ' padding:0 8%;'}">
+        <div class="search" v-show="search">
+          <img :src="item.albumpic"/>
+        </div>
+        <div class="content" :style="{padding: rank || search? '0' : ' padding:0 8%;'}">
           <h2 class="name" v-html="item.SONGNAME || item.name"></h2>
           <p class="desc" v-html="getDesc(item)"></p>
         </div>
@@ -22,6 +25,10 @@
         default: []
       },
       rank: {
+        type: Boolean,
+        default: false
+      },
+      search: {
         type: Boolean,
         default: false
       }
@@ -90,6 +97,18 @@
         .text{
           color: @color-theme;
           font-size: @font-size-large;
+        }
+      }
+      .search{
+        width: 10vh;
+        height: 10vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-right: .2rem;
+        img{
+          width: 80%;
+          height: 80%;
         }
       }
       .content{

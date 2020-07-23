@@ -14,10 +14,10 @@
         <div class="filter"></div>
         <!-- 背景图片的蒙层 -->
     </div>
-        <div class="back" :style="{background:backBg}" ref="back" @click="back">
+    <div class="back" :style="{background:backBg}" ref="back" @click="back">
         <i class="iconfont icon-fanhui"></i>
         <h1 class="title">{{title}}</h1>
-        </div>
+    </div>
     <div class="bg-layer" ref="layer"></div>
     <scroll-view
         :data="songs"

@@ -47,6 +47,14 @@ export default {
                     _this.$emit("scroll",pos);
                 })
             }
+            if(this.listenScroll){
+                let _this = this; //因为这个on默认会把this改成scroll本身
+                this.scroll.on('scrollEnd',(pos)=>{
+                    if (this.scroll.y <= (this.scroll.maxScrollY + 50)) {
+                        this.$emit('scrollToEnd')
+                    }
+                })
+            }
         },
         enable(){
             this.scroll && this.scroll.enable();
@@ -64,7 +72,6 @@ export default {
         scrollToElement(){
             this.scroll && this.scroll.scrollToElement.apply(this.scroll,arguments);
         }
-
     },
     watch:{
         data(){

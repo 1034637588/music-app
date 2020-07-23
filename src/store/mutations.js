@@ -26,6 +26,12 @@ const mutations = {
     },
     [types.SET_BANG](state,bang){
       state.bang = bang;
+    },
+    [types.SET_SUGGEST](state,suggest){
+      state.suggest = suggest;
+    },
+    [types.SET_SEARCH_HISTORY](state,history){
+      state.searchHistory = history;
     }
 }
 export default mutations;

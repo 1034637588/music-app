@@ -130,9 +130,9 @@ export default {
     data(){
         return{
             songUrl:"",
-            lrclist:null,
+            lrclist:[{lineLyric:"正在加载...",time:0}],
             songReady:false,
-            songTime:"",
+            songTime:"00:00",
             currentTime:"",
             songImg:"",
             radius:35,
@@ -162,7 +162,7 @@ export default {
             return this.currentTime / time;
         },
         currentLrc(){
-            return this.lrclist ? this.lrclist[this.currentLrcIndex].lineLyric : "暂无歌词";
+            return this.lrclist[this.currentLrcIndex].lineLyric || "暂无歌词";
         },
         ...mapGetters([
             'fullScreen',
@@ -177,6 +177,8 @@ export default {
     },
     watch:{ //当前歌曲改变 就重新请求歌曲地址 并且播放
         currentSong(newSong,oldSong){
+            this.currentTime = 0;
+            this.$forceUpdate();
             console.log(newSong.musicrid);
             if(!newSong.MUSICRID){ //两种接口 返回的数据不一样
                 if(newSong.musicrid == oldSong.musicrid){
@@ -197,14 +199,17 @@ export default {
             });
         },
         currentTime(newTime,oldTime){ //监听当前播放时间的变化 改变歌词滚动
-            if(!this.lrclist){
+            // this.$forceUpdate();
+            if(this.lrclist.length < 2){
                 return;
             }
             for (let index = 0; index < this.lrclist.length; index++) {
                 const time = this.lrclist[index].time;
                 if(time > newTime){
-                    this.currentLrcIndex = index - 1;
-                    break;
+                    if(index > 0){
+                        this.currentLrcIndex = index - 1;
+                         break;
+                    }
                 }
             }
             if(this.currentLrcIndex > 5){
@@ -219,11 +224,10 @@ export default {
     },
     created(){
         this.touch = {};
-    },
-    mounted(){
-        console.log(666)
         let id = this.currentSong.MUSICRID.split('_')[1] || this.currentSong.musicrid.split('_')[1] ;
         this.getSongAndLrc(id);
+    },
+    mounted(){
         // this.radius = this.$refs.icon.clientWidth;
     },
     methods:{
@@ -248,7 +252,6 @@ export default {
             }
             this.resetCurrentIndex(list);
             this.setPlayList(list);
-
         },
         resetCurrentIndex(list){ //由于打乱顺序 当前歌曲是根据当前的列表索引定的 那么当前歌曲会改变
             let index = list.findIndex((item)=>{
@@ -303,6 +306,7 @@ export default {
         },
         ready(){ //当歌曲可以播放时
             this.songReady = true;
+            // this.currentTime = 0;
         },
         ended(){ //歌曲播放结束
             if(this.mode == 1){ //循环播放的话

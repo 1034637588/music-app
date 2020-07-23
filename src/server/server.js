@@ -11,7 +11,9 @@ const request = axios.create({
     headers:{
         'Content-Type':"application/json;charset=UTF-8",
         'Cookie':"_ga=GA1.2.1958734348.1594197994; Hm_lvt_cdb524f42f0ce19b169a8071123a4797=1594197993,1594451665; Hm_lpvt_cdb524f42f0ce19b169a8071123a4797=1594451710; kw_token=4BVLIVCXOEA",
-        "csrf":"4BVLIVCXOEA"
+        "csrf":"4BVLIVCXOEA",
+        "Host":"www.kuwo.cn",
+        "Referer":"http://www.kuwo.cn/rankList"
         }
 });
 
@@ -27,7 +29,7 @@ app.get('/banner',(req,response)=>{
 app.get('/song',(req,response)=>{
     let {name,page,size} = req.query;
     name = encodeURI(name);
-    let url = `http://search.kuwo.cn/r.s?all=${name}&ft=music&%20itemset=web_2013&client=kt&pn=${page}&rn=${size}&rformat=json&encoding=utf8`;
+    let url = `http://search.kuwo.cn/r.s?all=${name}&ft=music& itemset=web_2013&client=kt&pn=${page}&rn=${size}&rformat=json&encoding=utf8`;
     request.get(url).then(res=>{
         response.end(res.data);
     })
@@ -82,6 +84,32 @@ app.get('/bangMusicList',(req,response)=>{
         });
 });
 
+//热搜
+app.get('/searchkey',(req,response)=>{
+    let url = `http://www.kuwo.cn/api/www/search/searchKey?key=&httpsStatus=1&reqId=87612220-c820-11ea-a0e7-9b7786e408a2`;
+    request.get(url).then(res=>{
+        response.json(res.data);
+        });
+});
+//搜索提示
+
+app.get('/searchList',(req,response)=>{
+    let {key} = req.query;
+    key = encodeURI(key);
+    let url = `http://www.kuwo.cn/api/www/search/searchKey?key=${key}&httpsStatus=1&reqId=1ec528b0-c839-11ea-a0e7-9b7786e408a2`
+    request.get(url).then(res=>{
+        response.json(res.data);
+        });
+});
+
+app.get('/searchMusicBykeyWord',(req,response)=>{
+    let {key,page=1,size=15} = req.query;
+    key = encodeURI(key);
+    let url = `http://www.kuwo.cn/api/www/search/searchMusicBykeyWord?key=${key}&pn=${page}&rn=${size}&httpsStatus=1&reqId=3d827580-c845-11ea-a0e7-9b7786e408a2`
+    request.get(url).then(res=>{
+        response.json(res.data);
+    });
+})
 app.listen('9000',()=>{
 console.log('ok');
 });

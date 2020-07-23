@@ -12,3 +12,5 @@ export const currentSong = (state) => {
 };
 export const disc = state=>state.disc;
 export const bang = state=>state.bang;
+export const suggest = state=>state.suggest;
+export const searchHistory = state =>state.searchHistory;

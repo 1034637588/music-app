@@ -36,7 +36,14 @@ const routes = [
     ]
   },{
     path:'/search',
-    component:()=>import('../views/search/search')
+    component:()=>import('../views/search/search'),
+    children:[
+      {
+        path:':query',
+        component:()=>import('../views/search-detail/searchDetail')
+      }
+    ]
+
   }
 ];
 

@@ -14,6 +14,7 @@
 </template>
 <script>
 import songApi from '../../api/songsApi';
+import searchApi from '../../api/searchApi'
 import musicList from '../../components/musicList/musicList';
 import Loading from '../../components/loading/loading.vue';
 import {mapGetters} from 'vuex';
@@ -36,33 +37,15 @@ export default {
         ])
     },
     created(){
-        this.loadeData(this.currentPage,100);
+        this.loadeData(this.currentPage,30);
     },
     methods:{
         loadeData(page,size){
-            // this.load = true;
-            songApi.getSongsBySinger(this.singer.name,page,size).then((res)=>{
-                let data = res.data;
-                let index = data.indexOf('abslist');
-                data ="{'" + data.slice(index);
-                data = data.replace(/'/g,'"');
-                data = JSON.parse(data);
-                this.moreData = data.abslist;
-                this.songList = this.songList.concat(this.moreData);
-                // this.load = false;
-             });
+            searchApi.SearchMusicBykeyWord(this.singer.name,page,size).then(res=>{
+                this.songList = res.data.data.list;
+            })
         },
         loaderMore(pos){ //监听了misiclist个滚动事件
-        //     let listHeight = this.$refs.musiclist.$children[0].$children[0].$refs.songul.clientHeight;
-        //     let Height = document.documentElement.clientHeight;//屏幕高度
-        //     let imgHeight = this.$refs.musiclist.imgHeight;
-        //     let scorllHeight = Height - imgHeight;
-        //     if(scorllHeight - pos > listHeight + 100){
-        //         // console.log("加载数据")
-        //         this.currentPage += 1; 
-        //         this.loadeData(this.currentPage,2);
-        //     }
-        //     console.log(listHeight)
         }
     }
 }
