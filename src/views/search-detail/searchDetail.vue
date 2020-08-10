@@ -63,16 +63,18 @@ export default {
     methods: {
          ...mapActions([
             "selectPlay",
-            "randomPlay"
+            "randomPlay",
+            "insertSong"
         ]),
         back(){
             this.$router.go(-1);
         },
          selectSong(item,index){ //点击播放音乐 传入播放列表
-            this.selectPlay({
-               list:this.songs,
-               index
-            });
+            // this.selectPlay({
+            //    list:this.songs,
+            //    index
+            // });
+            this.insertSong(item);
         },
         handlePlaylist(playList){
             if(playList.length > 0){

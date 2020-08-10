@@ -157,7 +157,7 @@ export default {
     transition: all .5s 0s;
     }
     .fade-enter{
-        transform:translate3d(100%,0,0) scale(.2); //进入之前的状态 然后进入后就是远洋 在这个这个之间过度
+        transform:translate3d(100%,0,0) scale(.2); //进入之前的状态 然后进入后就是原样 在这个这个之间过度
         transform-origin: left buttom;
    }
     .fade-leave-to{

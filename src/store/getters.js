@@ -14,3 +14,5 @@ export const disc = state=>state.disc;
 export const bang = state=>state.bang;
 export const suggest = state=>state.suggest;
 export const searchHistory = state =>state.searchHistory;
+export const playHistory = state =>state.playHistory;
+export const favoriteList = state =>state.favoriteList;

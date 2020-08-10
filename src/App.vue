@@ -3,7 +3,7 @@
     <m-header/>
     <m-tab/>
     <keep-alive>
-      <router-view/>
+        <router-view/>
     </keep-alive>
     <player/>
   </div>
@@ -24,6 +24,7 @@ export default {
 </script>
 <style lang="less" scoped>
 @import './assets/styles/css/varibal.less';
+   
     #app{
       height: 100vh;
       width: 100%;

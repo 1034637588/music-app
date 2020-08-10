@@ -11,10 +11,7 @@
                     </div>
                 </li>
             </ul>
-            <div class="noSuggest" v-show="noSuggest">
-                <img src="./no-result@3x.png"/>
-                <h1>抱歉,暂无搜索到结果</h1>
-            </div>
+            <no-reslut :isShow="noSuggest"/>
         </div>
     </scroll>
 </template>
@@ -22,9 +19,11 @@
 import SearchApi from '../../api/searchApi';
 import Scroll from '../../components/scroll/ScrollView';
 import {throttle} from '../../assets/utils/utils';
+import noReslut from '../../components/no-result/noReslut';
 export default {
     components:{
-        Scroll
+        Scroll,
+        noReslut
     },
     props:{
         keys:{
@@ -101,22 +100,7 @@ export default {
         }
     }
   }
-  .noSuggest{
-      width: 100%;
-      height: 40vh;
-      text-align: center;
-      margin-top: 100px;
-      img{
-          width: auto;
-          height: 50%;
-      }
-      h1{
-           margin-top: 30px;
-            font-size: @font-size-medium;
-            color: @color-text-d;
-            letter-spacing: 3px;
-      }
-  }
+
 }
 
 </style>

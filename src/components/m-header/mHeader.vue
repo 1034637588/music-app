@@ -2,11 +2,16 @@
     <div class="h-box">
         <div class="img"></div>
         <h3>Dessert Music</h3>
-        <i class="iconfont icon-yonghu"></i>
+        <i @click="goToUsers" class="iconfont icon-yonghu"></i>
     </div>
 </template>
 <script>
 export default {
+    methods:{
+        goToUsers(){
+            this.$router.push({path:'/user'});
+        }
+    }
 }
 </script>
 <style lang="less" scoped>

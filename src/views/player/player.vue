@@ -74,8 +74,8 @@
                         <div @click.stop="next" class="icon i-right" >
                             <i class="iconfont icon-tubiaozhizuomoban"></i>
                         </div>
-                        <div class="icon i-right">
-                            <i class="iconfont icon-xin1"></i>
+                        <div @click.stop="toggleFavorite(currentSong)" class="icon i-right">
+                            <i class="iconfont" :class="isLike(currentSong) ? 'icon-xin' : ' icon-xin1'"></i>
                         </div>
                     </div>
                 </div>
@@ -95,7 +95,7 @@
                      <i :class="miniIcon" ref = "icon" class="progress-cir-icon iconfont"></i>
                 </progress-cir>
             </div>
-            <div class="control two">
+            <div @click.stop="showPlayList" class="control two">
                 <i class="iconfont icon-yinleliebiao"></i>
             </div>
         </div>
@@ -110,23 +110,28 @@
         preload:auto 
         :src="songUrl">
         </audio>
+        <play-list @close="hiddenPlayList" ref="palylist"/>
     </div>
 </template>
 <script>
 import Scroll from '../../components/scroll/ScrollView'
 import songApi from '../../api/songsApi';
 import axios from 'axios';
-import {mapGetters,mapMutations} from 'vuex';
+import {mapGetters,mapMutations, mapActions} from 'vuex';
 import animations from 'create-keyframe-animation';
 import progressBar from '../../components/progressBar/progressBar';
 import progressCir from '../../components/progress-circle/progressCircle';
+import playList from '../../components/playList/playList'; 
 import {shuffle} from '../../assets/utils/random';
+import {playerMixin} from '../../assets/utils/mixin';
 export default {
     components:{
         progressBar,
         progressCir,
-        Scroll
+        Scroll,
+        playList
     },
+    mixins:[playerMixin],
     data(){
         return{
             songUrl:"",
@@ -162,7 +167,7 @@ export default {
             return this.currentTime / time;
         },
         currentLrc(){
-            return this.lrclist[this.currentLrcIndex].lineLyric || "暂无歌词";
+            return this.lrclist ? this.lrclist[this.currentLrcIndex].lineLyric || "暂无歌词" : "暂无歌词";
         },
         ...mapGetters([
             'fullScreen',
@@ -172,14 +177,18 @@ export default {
             'playing',
             'currentIndex',
             'mode',
-            'sequenceList'
+            'sequenceList',
+            'favoriteList'
         ])
     },
     watch:{ //当前歌曲改变 就重新请求歌曲地址 并且播放
         currentSong(newSong,oldSong){
+            if(!this.playList.length){
+                return;
+            }
             this.currentTime = 0;
             this.$forceUpdate();
-            console.log(newSong.musicrid);
+            // console.log(newSong.musicrid);
             if(!newSong.MUSICRID){ //两种接口 返回的数据不一样
                 if(newSong.musicrid == oldSong.musicrid){
                     return;
@@ -200,7 +209,11 @@ export default {
         },
         currentTime(newTime,oldTime){ //监听当前播放时间的变化 改变歌词滚动
             // this.$forceUpdate();
-            if(this.lrclist.length < 2){
+            if(!this.lrclist){
+               this.lrclist = [{lineLyric:"暂无歌词",time:0}];
+                return;
+            }
+            if( this.lrclist.length < 2){
                 return;
             }
             for (let index = 0; index < this.lrclist.length; index++) {
@@ -238,6 +251,17 @@ export default {
             setMode:"SET_PLAY_MODE",
             setPlayList:"SET_PLAYLIST"
         }),
+        ...mapActions([
+            'savePlayHistory',
+            "saveFavoriteList",
+            "deleteFavoriteList"
+        ]),
+        showPlayList(){ //显示播放列表
+            this.$refs.palylist.show();
+        },
+        hiddenPlayList(){
+            this.$refs.palylist.hidden();
+        },
         togglePlaying(){
             this.setPlayingState(!this.playing);//改变vuex中state的playing 控制暂停播放
         },
@@ -307,6 +331,7 @@ export default {
         ready(){ //当歌曲可以播放时
             this.songReady = true;
             // this.currentTime = 0;
+            this.savePlayHistory(this.currentSong); //存入最近播放列表
         },
         ended(){ //歌曲播放结束
             if(this.mode == 1){ //循环播放的话
@@ -353,8 +378,7 @@ export default {
                     this.songTime = lrclist.data.data.songinfo.songTimeMinutes;
                     this.songImg = lrclist.data.data.songinfo.pic;
                     console.log(this.songTime,this.lrclist);
-                }))
-
+                }));
         },
         //左右切换歌词和cd
         mtouchStart(e){
@@ -702,6 +726,9 @@ export default {
                          font-size: .7rem;
                          position: absolute;
                         //  left: 0;
+                     }
+                     .icon-xin{
+                         color: red;
                      }
 
                 }

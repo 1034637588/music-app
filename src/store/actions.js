@@ -1,7 +1,7 @@
 import {shuffle} from '../assets/utils/random';
 import {playMode} from '../assets/config/config';
 import * as types from './mutationType';
-import {saveSearch,delectSearch,clear} from '../assets/utils/cache';
+import {saveSearch,delectSearch,clear,savePlay,loadPlay,saveFavorite,deleteFavorite,loadFavorite} from '../assets/utils/cache';
 function findIndex(list, song) {
     return list.findIndex((item) => {
       if(!item.musicrid){
@@ -37,7 +37,7 @@ export const randomPlay = function ({commit}, {list}) {
 
   //向播放列表中添加歌曲
 export const insertSong = function ({commit,state},song){
-  let playlist = state.playlist.slice(); //[A,B,C,D]
+  let playlist = state.playList.slice(); //[A,B,C,D]
   let sequenceList = state.sequenceList.slice(); // [A,B,C,D]
   let currentIndex = state.currentIndex; //1=>B
   // 记录当前歌曲
@@ -78,6 +78,37 @@ export const insertSong = function ({commit,state},song){
   commit(types.SET_PLAYING_STATE, true);
 }
 
+//删除歌曲
+export const deleteSong = function ({commit, state}, song) {
+  let playlist = state.playList.slice();
+  let sequenceList = state.sequenceList.slice();
+  let currentIndex = state.currentIndex;
+  let pIndex = findIndex(playlist, song);
+  playlist.splice(pIndex, 1);
+  let sIndex = findIndex(sequenceList, song);
+  sequenceList.splice(sIndex, 1);
+  if (currentIndex > pIndex || currentIndex === playlist.length) {
+    currentIndex--;
+  }
+
+  commit(types.SET_PLAYLIST, playlist);
+  commit(types.SET_SEQUENCE_LIST, sequenceList);
+  commit(types.SET_CURRENT_INDEX, currentIndex);
+
+  if (!playlist.length) {
+    commit(types.SET_PLAYING_STATE, false);
+  } else {
+    commit(types.SET_PLAYING_STATE, true);
+  }
+}
+
+export const clearPlayList = function ({commit}){
+  commit(types.SET_CURRENT_INDEX, -1)
+  commit(types.SET_PLAYLIST, [])
+  commit(types.SET_SEQUENCE_LIST, [])
+  commit(types.SET_PLAYING_STATE, false)
+}
+
 export const saveSearchHistory = function({commit,state},query){
   commit(types.SET_SEARCH_HISTORY,saveSearch(query));
 }
@@ -90,4 +121,16 @@ export const deleteHistory = function({commit,state},item){
 export const clearHistory = function({commit,state},item){
     clear();
     commit(types.SET_SEARCH_HISTORY,[]);
+}
+
+export const savePlayHistory = function({commit},song){
+  commit(types.SET_PLAY_HISTORY,savePlay(song));
+}
+
+export const saveFavoriteList = function({commit},song){
+    commit(types.SET_FAVORITE_LIST,saveFavorite(song));
+}
+
+export const deleteFavoriteList = function({commit},song){
+  commit(types.SET_FAVORITE_LIST,deleteFavorite(song));
 }

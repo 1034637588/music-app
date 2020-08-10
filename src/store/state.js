@@ -1,7 +1,9 @@
 import {playMode} from '../assets/config/config';
-import {getItem} from '../assets/utils/cache';
+import {getItem,loadPlay,loadFavorite} from '../assets/utils/cache';
 const {sequence,loop,random} = playMode;
 const arr = getItem("SEARCH_KRY");
+const plays = loadPlay("PLAY_KRY");
+const fav = loadFavorite("FAV_KEY");
 const state = {
     singer:{},
     playing:false,
@@ -13,6 +15,8 @@ const state = {
     disc:{}, //推荐歌单
     bang:{},
     suggest:"", //点击搜索的关键词
-    searchHistory:arr
+    searchHistory:arr,
+    playHistory:plays,
+    favoriteList:fav
 }
 export default state;
