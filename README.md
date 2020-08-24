@@ -1,4 +1,4 @@
-# vue-ebook
+# vue-music
 
 ## Project setup
 ```
